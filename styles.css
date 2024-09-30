@@ -1,0 +1,159 @@
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f4f4f4;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  margin: 0;
+}
+
+h1, h2 {
+  font-family: 'Arial', sans-serif;
+  color: #333;
+}
+
+.card {
+  margin-top: 20px;
+}
+
+.card img{
+  weight: 300px;
+  height: auto;
+
+}
+
+.table thead th {
+  background-color: #6c757d;
+  color: white;
+}
+
+.table tbody tr:hover {
+  background-color: #f1f1f1;
+}
+
+.btn-primary {
+  background-color: #007bff;
+  border-color: #007bff;
+}
+
+.btn-warning {
+  background-color: #ffc107;
+  border-color: #ffc107;
+}
+
+.btn-danger {
+  background-color: #dc3545;
+  border-color: #dc3545;
+}
+
+.btn-success {
+  background-color: #28a745;
+  border-color: #28a745;
+}
+
+.navbar {
+  margin-bottom: 30px;
+}
+
+.receipt {
+  width: 300px;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+
+
+
+.details {
+  margin-bottom: 20px;
+}
+
+.row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 5px;
+}
+
+.label {
+  font-weight: bold;
+}
+
+.items {
+  margin-bottom: 20px;
+}
+
+
+.item-label {
+  flex: 1;
+}
+
+.item {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 5px;
+}
+
+.item-name {
+  flex: 2;
+}
+
+.item-quantity {
+  flex: 1;
+  text-align: center;
+}
+
+.item-price {
+  flex: 1;
+  text-align: right;
+}
+
+.total {
+  display: flex;
+  justify-content: space-between;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+
+.resi-container {
+  margin-top: 20px;
+}
+
+.resi-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.resi-table th, .resi-table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: center;
+}
+
+.resi-table th {
+  background-color: #f4f4f4;
+}
+
+.resi-table tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+.resi-table tr:hover {
+  background-color: #f1f1f1;
+}
+
+.about{
+  position: relative;
+  background: url('assets/img/padang.jpg') no-repeat center center;
+  background-size: cover;
+  color: #000000;
+  text-align: center;
+  padding: 100px 0;
+}
+
+.card-body p{
+  text-align  : justify;
+}

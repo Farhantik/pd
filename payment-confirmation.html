@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Payment Confirmation</title>
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #000000, #333333);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    .confirmation-box {
+      background-color: #222;
+      padding: 50px;
+      border-radius: 15px;
+      text-align: center;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    }
+
+    h2 {
+      font-size: 2.5rem;
+      margin-bottom: 20px;
+    }
+
+    p {
+      font-size: 1.2rem;
+      margin-bottom: 15px;
+    }
+
+    .btn {
+      display: inline-block;
+      padding: 12px 30px;
+      font-size: 1.1em;
+      border-radius: 8px;
+      background-color: #28a745;
+      color: white;
+      border: none;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      margin-top: 20px;
+    }
+
+    .btn:hover {
+      background-color: #218838;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="confirmation-box">
+    <h2>Payment Successful</h2>
+    <p>Thank you, <span id="customerName"></span>, for your payment!</p>
+    <p>Total Paid: Rp <span id="totalPaid"></span></p>
+    <button class="btn" onclick="goToMenu()">Return to Menu</button>
+  </div>
+
+  <script>
+    // Get URL parameters
+    const urlParams = new URLSearchParams(window.location.search);
+    document.getElementById('customerName').textContent = urlParams.get('name');
+    document.getElementById('totalPaid').textContent = urlParams.get('total');
+
+    // Redirect to menu page
+    function goToMenu() {
+      window.location.href = 'customer.html';  // Replace 'menu.html' with the actual URL of your menu page
+    }
+  </script>
+</body>
+
+</html>

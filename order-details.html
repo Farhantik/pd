@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Order Details</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #000000, #333333);
+      color: #333;
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      max-width: 700px;
+      margin: 60px auto;
+      background-color: #313131c2;
+      border-radius: 15px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+      padding: 30px;
+    }
+
+    h2 {
+      color: #fbf6f6;
+      text-align: center;
+      margin-bottom: 20px;
+      font-size: 2.5rem;
+      font-weight: 700;
+    }
+
+    .order-details-card {
+      background-color: #111;
+      color: gold;
+      border-radius: 12px;
+      padding: 30px;
+      position: relative;
+    }
+
+    .order-details-card p {
+      font-size: 1.3em;
+      margin-bottom: 20px;
+      padding: 10px;
+      border-bottom: 1px solid rgba(255, 215, 0, 0.3);
+    }
+
+    .text-center {
+      text-align: center;
+      margin-top: 30px;
+    }
+
+    .btn {
+      display: inline-block;
+      padding: 12px 30px;
+      font-size: 1.1em;
+      border-radius: 8px;
+      color: #fff;
+      background-color: #111;
+      border: 2px solid gold;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .btn-primary {
+      background-color: gold;
+      color: #000;
+      border: none;
+    }
+
+    .btn:hover {
+      background-color: #fff;
+      color: #000;
+    }
+
+    .btn-secondary:hover {
+      background-color: gold;
+      color: #000;
+    }
+
+    table {
+      width: 100%;
+      margin-top: 20px;
+    }
+
+    th,
+    td {
+      color: gold;
+      padding: 12px;
+      text-align: left;
+      font-size: 1.1em;
+    }
+
+    th {
+      background-color: #222;
+    }
+
+    td {
+      background-color: #333;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h2>Order Details & Receipt</h2>
+    <div class="order-details-card shadow-lg p-4">
+      <p><strong>Receipt Number:</strong> <span id="receiptNumber"></span></p>
+      <p><strong>Customer Name:</strong> <span id="customerNameDisplay"></span></p>
+      <p><strong>Date of Purchase:</strong> <span id="dateOfPurchaseDisplay"></span></p>
+      <!-- New line for Date of Purchase -->
+      <table id="orderItemsTable">
+        <thead>
+          <tr>
+            <th>Dish</th>
+            <th>Extras</th>
+            <th>Quantity</th>
+            <th>Price</th>
+          </tr>
+        </thead>
+        <tbody id="orderItems"></tbody>
+      </table>
+      <p><strong>Total Price:</strong> <span id="totalPriceDisplay"></span></p>
+      <div class="text-center">
+        <button onclick="goBack()" class="btn btn-secondary">Go Back</button>
+        <button onclick="printReceipt()" class="btn btn-primary">Print Receipt</button>
+        <button onclick="goToPayment()" class="btn btn-pay">Pay Now</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const dishPrices = {
+      "Rendang": 50000,
+      "Ayam Pop": 40000,
+      "Gulai Ikan": 45000,
+      "Sayur Nangka": 20000,
+      "Gulai Tunjang": 55000,
+      "Sate": 60000
+    };
+
+    function generateReceiptNumber() {
+      return Math.floor(Math.random() * 1000000000);
+    }
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const customerName = urlParams.get('customerName');
+    const dishes = JSON.parse(urlParams.get('dishes'));
+    const dateOfPurchase = urlParams.get('dateOfPurchase'); // Get date of purchase
+
+    let totalPrice = 0;
+    const orderItemsContainer = document.getElementById('orderItems');
+
+    dishes.forEach((dish, index) => {
+      const dishPrice = dishPrices[dish.name] || 0;
+      const quantity = dish.quantity || 1;
+      const itemTotalPrice = dishPrice * quantity;
+      totalPrice += itemTotalPrice;
+
+      const extrasText = dish.extras.join(', ') || 'None';
+
+      const orderItemRow = `
+        <tr>
+          <td>${dish.name}</td>
+          <td>${extrasText}</td>
+          <td>${quantity}</td>
+          <td>Rp ${itemTotalPrice.toLocaleString()}</td>
+        </tr>
+      `;
+      orderItemsContainer.innerHTML += orderItemRow;
+    });
+
+    document.getElementById('customerNameDisplay').textContent = customerName;
+    document.getElementById('totalPriceDisplay').textContent = 'Rp ' + totalPrice.toLocaleString();
+    document.getElementById('receiptNumber').textContent = generateReceiptNumber();
+    document.getElementById('dateOfPurchaseDisplay').textContent = dateOfPurchase; // Display date of purchase
+
+    function goBack() {
+      window.history.back();
+    }
+
+    function printReceipt() {
+      window.print();
+    }
+
+    function goToPayment() {
+      let paymentUrl = `payment.html?name=${encodeURIComponent(customerName)}&total=${totalPrice}`;
+      paymentUrl += `&dateOfPurchase=${encodeURIComponent(dateOfPurchase)}`; // Pass date of purchase
+      dishes.forEach((dish, index) => {
+        paymentUrl += `&dish_${index}=${encodeURIComponent(dish.name)}&quantity_${index}=${encodeURIComponent(dish.quantity)}&extras_${index}=${encodeURIComponent(dish.extras.join(', '))}`;
+      });
+      window.location.href = paymentUrl;
+    }
+  </script>
+</body>
+
+</html>
