@@ -220,6 +220,25 @@ try {
       color: #FFD700;
       text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.7);
     }
+
+    @media (max-width: 768px) {
+      .table td img {
+        width: 60px;
+        height: auto;
+      }
+
+      .table th,
+      .table td {
+        font-size: 12px;
+        padding: 10px;
+      }
+
+      .btn {
+        font-size: 12px;
+        padding: 5px 10px;
+      }
+    }
+    
   </style>
 </head>
 
@@ -263,62 +282,64 @@ try {
       </ul>
     </div>
   </nav>
-
-  <div class="card mt-5 shadow-lg rounded">
-    <div class="card-header bg-dark text-white text-center py-3">
-      <h2 class="mb-0">Menu Items</h2>
-    </div>
-    <div class="card-body p-4">
-      <table class="table table-hover table-bordered text-center" style="color: #000000;">
-        <thead class="thead-light">
-          <tr>
-            <th>ID Menu</th>
-            <th>Resi</th>
-            <th>Menu Item</th>
-            <th>Description</th>
-            <th>Image</th>
-            <th>Price</th>
-            <th>Date Added</th>
-            <th>Stock Menu</th>
-            <th>Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          <?php if (empty($menuItems)): ?>
-            <tr>
-              <td colspan="9" class="text-center text-muted">No menu items available</td>
-            </tr>
-          <?php else: ?>
-            <?php foreach ($menuItems as $item): ?>
-              <tr id="menu-item-<?= htmlspecialchars($item['id_menu']); ?>">
-                <td><?= htmlspecialchars($item['id_menu']); ?></td>
-                <td><?= htmlspecialchars($item['resi']); ?></td>
-                <td><?= htmlspecialchars($item['menu_item']); ?></td>
-                <td><?= htmlspecialchars($item['description']); ?></td>
-                <td>
-                  <img src="uploads/<?= htmlspecialchars($item['image_url']); ?>"
-                    alt="<?= htmlspecialchars($item['menu_item']); ?>"
-                    width="80" class="img-thumbnail">
-                </td>
-                <td>Rp <?= number_format($item['price'], 2, ',', '.'); ?></td>
-                <td><?= date('d-m-Y', strtotime($item['created_at'])); ?></td>
-                <td><?= htmlspecialchars($item['stok_menu']); ?></td>
-                <td>
-                  <a href="edit_menu.php?id=<?= $item['id_menu']; ?>" class="btn btn-warning btn-sm">Edit</a>
-                  <button class="btn btn-danger btn-sm" onclick="deleteMenu(<?= $item['id_menu']; ?>)">Delete</button>
-                </td>
+  <div class="container mt-5">
+    <div class="card shadow-lg rounded">
+      <div class="card-header bg-dark text-white text-center py-3">
+        <h2 class="mb-0">Menu Items</h2>
+      </div>
+      <div class="card-body p-4">
+        <!-- Tambahkan table-responsive agar tabel dapat discroll di layar kecil -->
+        <div class="table-responsive">
+          <table class="table table-hover table-bordered text-center" style="color: #000000;">
+            <thead class="thead-light">
+              <tr>
+                <th>ID Menu</th>
+                <th>Resi</th>
+                <th>Menu Item</th>
+                <th>Description</th>
+                <th>Image</th>
+                <th>Price</th>
+                <th>Date Added</th>
+                <th>Stock Menu</th>
+                <th>Action</th>
               </tr>
-            <?php endforeach; ?>
-          <?php endif; ?>
-        </tbody>
-      </table>
-    </div>
-    <div class="card-footer text-center py-3">
-      <a href="tambah_menu.php" class="btn btn-primary">Add New Menu Item</a>
+            </thead>
+            <tbody>
+              <?php if (empty($menuItems)): ?>
+                <tr>
+                  <td colspan="9" class="text-center text-muted">No menu items available</td>
+                </tr>
+              <?php else: ?>
+                <?php foreach ($menuItems as $item): ?>
+                  <tr id="menu-item-<?= htmlspecialchars($item['id_menu']); ?>">
+                    <td><?= htmlspecialchars($item['id_menu']); ?></td>
+                    <td><?= htmlspecialchars($item['resi']); ?></td>
+                    <td><?= htmlspecialchars($item['menu_item']); ?></td>
+                    <td><?= htmlspecialchars($item['description']); ?></td>
+                    <td>
+                      <img src="uploads/<?= htmlspecialchars($item['image_url']); ?>"
+                        alt="<?= htmlspecialchars($item['menu_item']); ?>"
+                        width="80" class="img-thumbnail">
+                    </td>
+                    <td>Rp <?= number_format($item['price'], 2, ',', '.'); ?></td>
+                    <td><?= date('d-m-Y', strtotime($item['created_at'])); ?></td>
+                    <td><?= htmlspecialchars($item['stok_menu']); ?></td>
+                    <td>
+                      <a href="edit_menu.php?id=<?= $item['id_menu']; ?>" class="btn btn-warning btn-sm">Edit</a>
+                      <button class="btn btn-danger btn-sm" onclick="deleteMenu(<?= $item['id_menu']; ?>)">Delete</button>
+                    </td>
+                  </tr>
+                <?php endforeach; ?>
+              <?php endif; ?>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="card-footer text-center py-3">
+        <a href="tambah_menu.php" class="btn btn-primary">Add New Menu Item</a>
+      </div>
     </div>
   </div>
-
-
 
   <script>
     function deleteMenu(id) {
@@ -365,8 +386,13 @@ try {
 
               <!-- Image Section -->
               <a href="detail_menu.php?id=<?= htmlspecialchars($item['id_menu']); ?>">
-                <img src="<?= htmlspecialchars($item['image_url']); ?>" class="card-img-top" alt="<?= htmlspecialchars($item['menu_item']); ?>" style="max-height: 200px; object-fit: cover;">
+                <img src="uploads/<?= htmlspecialchars($item['image_url']); ?>"
+                  alt="<?= htmlspecialchars($item['menu_item']); ?>"
+                  class="card-img-top" style="max-height: 200px; object-fit: cover;">
+
               </a>
+
+
 
               <div class="card-body shadow">
                 <h5 class="card-title"><?= htmlspecialchars($item['menu_item']); ?></h5>
@@ -375,13 +401,13 @@ try {
                 <a href="edit_menu.php?id=<?= htmlspecialchars($item['id_menu']); ?>" class="btn btn-warning">Edit Menu</a>
               </div>
             </div>
+
           </div>
         <?php endforeach; ?>
 
       </div>
     </div>
   </div>
-
 
   <!-- Order List Table -->
   <div class="card">
