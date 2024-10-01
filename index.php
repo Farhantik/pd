@@ -39,6 +39,10 @@ try {
   <link
     href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Playfair+Display:wght@700&display=swap"
     rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  
+
   <link rel="stylesheet" href="style.css">
   <style>
     body {
@@ -238,7 +242,6 @@ try {
         padding: 5px 10px;
       }
     }
-    
   </style>
 </head>
 
@@ -251,7 +254,6 @@ try {
     </div> -->
   </div>
 
-  <!-- Navbar -->
   <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <a class="navbar-brand" href="#">
       <img src="assets/img/logo.png" alt="Restoran Padang Logo" class="navbar-logo">
@@ -264,24 +266,30 @@ try {
     <div class="collapse navbar-collapse" id="navbarNav">
       <ul class="navbar-nav ml-auto">
         <li class="nav-item">
-          <a class="nav-link" href="#menu">Menu</a>
+          <a class="nav-link" href="#menu">
+            <i class="fas fa-utensils"></i> Menu
+          </a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="laporan.html">Laporan</a>
+          <a class="nav-link" href="laporan.html">
+            <i class="fas fa-file-alt"></i> Laporan
+          </a>
         </li>
         <li class="nav-item dropdown">
           <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"
             aria-haspopup="true" aria-expanded="false">
-            Account
+            <i class="fas fa-user"></i> Account
           </a>
           <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-
-            <a class="dropdown-item" href="logout.php">Logout</a>
+            <a class="dropdown-item" href="logout.php">
+              <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
           </div>
         </li>
       </ul>
     </div>
   </nav>
+
   <div class="container mt-5">
     <div class="card shadow-lg rounded">
       <div class="card-header bg-dark text-white text-center py-3">
@@ -325,9 +333,14 @@ try {
                     <td><?= date('d-m-Y', strtotime($item['created_at'])); ?></td>
                     <td><?= htmlspecialchars($item['stok_menu']); ?></td>
                     <td>
-                      <a href="edit_menu.php?id=<?= $item['id_menu']; ?>" class="btn btn-warning btn-sm">Edit</a>
-                      <button class="btn btn-danger btn-sm" onclick="deleteMenu(<?= $item['id_menu']; ?>)">Delete</button>
+                      <a href="edit_menu.php?id=<?= $item['id_menu']; ?>" class="btn btn-warning btn-sm">
+                        <i class="fas fa-edit"></i> Edit
+                      </a>
+                      <button class="btn btn-danger btn-sm" onclick="deleteMenu(<?= $item['id_menu']; ?>)">
+                        <i class="fas fa-trash"></i> Delete
+                      </button>
                     </td>
+
                   </tr>
                 <?php endforeach; ?>
               <?php endif; ?>
@@ -374,40 +387,42 @@ try {
 
 
 
-  <div class="container mt-5">
-    <div id="menu" class="mt-5">
-      <h2 class="text-center mb-4 pt-5">Our Menu</h2>
-      <div class="row">
+<div class="container mt-5">
+  <div id="menu" class="mt-5">
+    <h2 class="text-center mb-4 pt-5">Our Menu</h2>
+    <div class="row">
 
-        <!-- Loop through each menu item -->
-        <?php foreach ($menuItems as $item): ?>
-          <div class="col-md-4 mb-3">
-            <div class="card shadow">
+      <!-- Loop through each menu item -->
+      <?php foreach ($menuItems as $item): ?>
+        <div class="col-md-4 mb-3">
+          <div class="card shadow">
 
-              <!-- Image Section -->
-              <a href="detail_menu.php?id=<?= htmlspecialchars($item['id_menu']); ?>">
-                <img src="uploads/<?= htmlspecialchars($item['image_url']); ?>"
-                  alt="<?= htmlspecialchars($item['menu_item']); ?>"
-                  class="card-img-top" style="max-height: 200px; object-fit: cover;">
+            <!-- Image Section -->
+            <a href="detail_menu.php?id=<?= htmlspecialchars($item['id_menu']); ?>">
+              <img src="uploads/<?= htmlspecialchars($item['image_url']); ?>"
+                alt="<?= htmlspecialchars($item['menu_item']); ?>"
+                class="card-img-top" style="max-height: 200px; object-fit: cover;">
+            </a>
 
+            <div class="card-body shadow">
+              <h5 class="card-title"><?= htmlspecialchars($item['menu_item']); ?></h5>
+              <p class="card-text"><?= htmlspecialchars($item['description']); ?></p>
+
+              <!-- Buttons with Icons -->
+              <a href="detail_menu.php?id=<?= htmlspecialchars($item['id_menu']); ?>" class="btn btn-primary">
+                <i class="fas fa-eye"></i> View Details
               </a>
-
-
-
-              <div class="card-body shadow">
-                <h5 class="card-title"><?= htmlspecialchars($item['menu_item']); ?></h5>
-                <p class="card-text"><?= htmlspecialchars($item['description']); ?></p>
-                <a href="detail_menu.php?id=<?= htmlspecialchars($item['id_menu']); ?>" class="btn btn-primary">View Details</a>
-                <a href="edit_menu.php?id=<?= htmlspecialchars($item['id_menu']); ?>" class="btn btn-warning">Edit Menu</a>
-              </div>
+              <a href="edit_menu.php?id=<?= htmlspecialchars($item['id_menu']); ?>" class="btn btn-warning">
+                <i class="fas fa-edit"></i> Edit Menu
+              </a>
             </div>
-
           </div>
-        <?php endforeach; ?>
+        </div>
+      <?php endforeach; ?>
 
-      </div>
     </div>
   </div>
+</div>
 
   <!-- Order List Table -->
   <div class="card">

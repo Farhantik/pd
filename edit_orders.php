@@ -7,7 +7,6 @@ if (!isset($_SESSION['login'])) {
   exit;
 }
 
-
 require 'functions.php'; // Ensure the path is correct
 
 // Fetch the order ID from the URL
@@ -25,55 +24,21 @@ if ($order === false) {
   exit; // Stop execution if the order cannot be found
 }
 
+// Process form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-  // Output the submitted data for debugging
-  echo "<pre>";
-  print_r($_POST);
-  echo "</pre>";
+  // Assume $orderId is already retrieved from the URL
+  $updateResult = updateOrder($_POST, $orderId);
 
-  // Check if required fields are set
-  if (
-    isset(
-      $_POST['customer_name'],
-      $_POST['menu_item'],
-      $_POST['quantity'],
-      $_POST['total_price'],
-      $_POST['date_of_purchase']
-    )
-  ) {
-    // Ensure $orderId is set (it should come from the URL)
-    if (isset($orderId)) {
-      $updateResult = updateOrder($_POST, $orderId);
-
-      // Check result of the update
-      if ($updateResult === 0) {
-        echo "<div class='alert alert-success'>Order updated successfully.</div>";
-      } else {
-        echo "<div class='alert alert-danger'>Error updating order: " . implode(", ", $updateResult) . "</div>";
-      }
-    } else {
-      echo "<div class='alert alert-danger'>Order ID is missing.</div>";
-    }
+  if (is_numeric($updateResult)) {
+    echo "<div class='alert alert-success'>Order updated successfully. Affected rows: $updateResult</div>";
   } else {
-    echo "<div class='alert alert-danger'>Required fields are missing.</div>";
-  }
-  // Safely handle extras
-  if (isset($data['extras'])) {
-    if (is_array($data['extras'])) {
-      // Debug output
-      error_log(print_r($data['extras'], true)); // Log the contents of extras
-      $extras = htmlspecialchars(implode(", ", $data['extras']));
-    } else {
-      $extras = ''; // Handle case where extras is not an array
-    }
-  } else {
-    $extras = ''; // Handle case where extras is not set
+    echo "<div class='alert alert-danger'>Failed to update order: $updateResult</div>";
   }
 }
 
 
-
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -147,24 +112,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   }
 </style>
 
+
 <body>
   <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
     <a class="navbar-brand d-flex align-items-center" href="#">
       <img src="assets/img/logo.png" alt="Logo" width="30" height="30" class="d-inline-block align-top mr-2">
       Restoran Padang
     </a>
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav"
-      aria-expanded="false" aria-label="Toggle navigation">
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarNav">
       <ul class="navbar-nav ml-auto">
-
         <li class="nav-item">
-          <a class="nav-link" href="customer.php">Kembali</a>
+          <a class="nav-link" href="chart.php">Kembali</a>
         </li>
-
-
       </ul>
     </div>
   </nav>
@@ -190,36 +152,41 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       </div>
       <div class="form-group">
         <label for="quantity">Quantity</label>
-        <input type="number" class="form-control" name="quantity" id="quantity" value="<?php echo htmlspecialchars($order['quantity']); ?>" min="1" required>
+        <input type="number" class="form-control" name="quantity" id="quantity" value="<?php echo htmlspecialchars($order['quantity']); ?>" min="1" required oninput="calculateTotal()">
       </div>
       <div class="form-group">
-        <label for="totalPrice">Total Price</label>
-        <input type="number" class="form-control" name="total_price" id="totalPrice" value="<?php echo htmlspecialchars($order['total_price']); ?>" required>
+        <label for="totalPrice">Total Price (IDR)</label>
+        <input type="number" class="form-control" name="total_price" id="totalPrice" value="<?php echo htmlspecialchars($order['total_price']); ?>" readonly>
       </div>
       <div class="form-group">
         <label for="dateOfPurchase">Date of Purchase</label>
         <input type="date" class="form-control" name="date_of_purchase" id="dateOfPurchase" value="<?php echo htmlspecialchars($order['date_of_purchase']); ?>" required>
       </div>
       <div class="form-group">
-        <label for="extras">Extras</label>
+        <label>Extras</label>
         <div class="form-check">
-          <input class="form-check-input" type="checkbox" name="extras[]" value="Krispi" id="extraKrispi" <?php echo (strpos($order['extras'], 'Krispi') !== false) ? 'checked' : ''; ?>>
+          <input class="form-check-input" type="checkbox" name="extras[]" value="Krispi" id="extraKrispi" <?php echo (in_array('Krispi', explode(',', $order['extras']))) ? 'checked' : ''; ?>>
           <label class="form-check-label" for="extraKrispi">Krispi</label>
         </div>
         <div class="form-check">
-          <input class="form-check-input" type="checkbox" name="extras[]" value="Sambal" id="extraSambal" <?php echo (strpos($order['extras'], 'Sambal') !== false) ? 'checked' : ''; ?>>
+          <input class="form-check-input" type="checkbox" name="extras[]" value="Sambal" id="extraSambal" <?php echo (in_array('Sambal', explode(',', $order['extras']))) ? 'checked' : ''; ?>>
           <label class="form-check-label" for="extraSambal">Sambal</label>
         </div>
-
       </div>
       <button type="submit" class="btn btn-primary">Update Order</button>
     </form>
-
   </div>
 
   <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+  <script>
+    function calculateTotal() {
+      const quantity = document.getElementById('quantity').value;
+      const totalPrice = quantity * 50000; // Adjust this based on your pricing logic
+      document.getElementById('totalPrice').value = totalPrice;
+    }
+  </script>
 </body>
 
 </html>

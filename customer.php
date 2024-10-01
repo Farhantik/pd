@@ -29,6 +29,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 }
 
 
+$conn = koneksi();
+var_dump($conn); // This should not be null
+
+// Fetching all menu items for the main menu display
+$menuItems = getAllMenuItems($conn); // Make sure to pass $conn
+
+
 ?>
 
 
@@ -39,9 +46,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Restoran Padang</title>
   <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-  <link
-    href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Playfair+Display:wght@700&display=swap"
-    rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <link rel="stylesheet" href="style.css">
 
   <style>
@@ -168,6 +174,36 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
       padding: 60px 0;
     }
 
+    .parallax1 {
+      background-image: url('assets/img/about-hero.jpg');
+      background-attachment: fixed;
+      background-size: cover;
+      background-position: center;
+      height: 800px;
+      color: #FFD700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      font-size: 2rem;
+      font-weight: 700;
+    }
+
+    .parallax2 {
+      background-image: url('assets/img/about-hero.jpg');
+      background-attachment: fixed;
+      background-size: cover;
+      background-position: center;
+      height: 800px;
+      color: #FFD700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      font-size: 2rem;
+      font-weight: 700;
+    }
+
     .parallax {
       background-image: url('assets/img/parallax-background.jpg');
       background-attachment: fixed;
@@ -181,6 +217,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
       text-align: center;
       font-size: 2rem;
       font-weight: 700;
+
+      .old-standard-tt-regular {
+        font-family: "Old Standard TT", serif;
+        font-weight: 400;
+        font-style: normal;
+      }
     }
 
     .hero-image {
@@ -333,6 +375,115 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     .footer a:hover {
       text-decoration: underline;
     }
+
+    .about-section {
+      padding: 60px 0;
+    }
+
+    .about-content {
+      margin-bottom: 30px;
+    }
+
+    .about-stats {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-around;
+    }
+
+    .stat {
+      flex: 1 1 30%;
+      /* Make each stat take up to 30% of the width */
+      min-width: 200px;
+      /* Ensure a minimum width for better responsiveness */
+      text-align: center;
+      margin: 15px;
+    }
+
+    .stat h3 {
+      font-size: 2rem;
+      /* Adjust font size for statistics */
+      color: #FFD700;
+      /* Optional: change color */
+    }
+
+    .stat p {
+      font-size: 1.2rem;
+      /* Adjust font size for the description */
+      color: #FFD700
+        /* Optional: change color */
+    }
+
+    /* Responsive Adjustments */
+    @media (max-width: 768px) {
+      .about-content {
+        margin-bottom: 40px;
+      }
+
+      .stat {
+        flex: 1 1 100%;
+        /* Stack stats on smaller screens */
+      }
+    }
+
+    .order-section {
+      background-color: transparent;
+      /* Light background for contrast */
+      padding: 40px 0;
+      /* Add padding to the section */
+    }
+
+    .card {
+      border-radius: 15px;
+      /* Rounded corners for the card */
+    }
+
+    .card-body {
+      background: transparent;
+      /* Gradient background */
+    }
+
+    .form-label {
+      font-weight: bold;
+      /* Bold labels for better readability */
+      color: #333;
+      /* Dark color for labels */
+    }
+
+    .btn-primary {
+      background-color: #FFD700;
+      /* Gold color for buttons */
+      border: none;
+      /* Remove border */
+    }
+
+    .btn-primary:hover {
+      background-color: #ffc107;
+      /* Darker shade on hover */
+      transition: background-color 0.3s ease;
+      /* Smooth transition */
+    }
+
+    .form-control {
+      border-radius: 10px;
+      /* Rounded corners for input fields */
+    }
+
+    .form-check-input {
+      border-radius: 5px;
+      /* Rounded corners for checkboxes */
+    }
+
+    @media (max-width: 768px) {
+      .order-section {
+        padding: 20px 0;
+        /* Reduce padding on smaller screens */
+      }
+
+      .btn-lg {
+        width: 100%;
+        /* Full width buttons on small screens */
+      }
+    }
   </style>
 
 </head>
@@ -343,7 +494,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
   <img src="assets/img/parallax-background.jpg" alt="Header Image">
 
 </div> -->
-
   <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
     <a class="navbar-brand d-flex align-items-center" href="#">
       <img src="assets/img/logo.png" alt="Logo" width="30" height="30" class="d-inline-block align-top mr-2">
@@ -356,33 +506,42 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <div class="collapse navbar-collapse" id="navbarNav">
       <ul class="navbar-nav ml-auto">
         <li class="nav-item">
-          <a class="nav-link" href="#about">About</a>
+          <a class="nav-link" href="#about"><i class="fas fa-info-circle mr-1"></i>About</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="#menu">Menu</a>
+          <a class="nav-link" href="#menu"><i class="fas fa-utensils mr-1"></i>Menu</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="#order">Order</a>
+          <a class="nav-link" href="#order"><i class="fas fa-shopping-cart mr-1"></i>Order</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="#contact">Contact</a>
+          <a class="nav-link" href="#contact"><i class="fas fa-envelope mr-1"></i>Contact</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="chart.php">Chart</a>
+          <a class="nav-link" href="chart.php"><i class="fas fa-chart-bar mr-1"></i>Chart</a>
         </li>
         <li class="nav-item dropdown">
           <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"
             aria-haspopup="true" aria-expanded="false">
-            Account
+            <i class="fas fa-user mr-1"></i>Account
           </a>
           <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-
-            <a class="dropdown-item" href="logout.php">Logout</a>
+            <a class="dropdown-item" href="logout.php"><i class="fas fa-sign-out-alt mr-1"></i>Logout</a>
           </div>
         </li>
       </ul>
     </div>
   </nav>
+
+
+
+
+  <div class="parallax1">
+    <div>
+      <h1>Selamat datang di Restoran Padang Merdeka <br> Perjalanan Kuliner Melalui Cita Rasa Asli Indonesia.</h1>
+
+    </div>
+  </div>
 
   <!-- Hero Section -->
   <div class="parallax">
@@ -391,7 +550,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
       <a href="#menu" class="btn btn-primary">Explore Our Menu</a>
     </div>
   </div>
-
   <div class="container section-padding">
     <!-- About Us Section -->
     <div id="about" class="about-section">
@@ -401,36 +559,37 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
           <div class="col-lg-6 mb-4">
             <div class="about-content">
               <h2>Our Story</h2>
-              <p>Welcome to <strong>Restoran Padang</strong>! We proudly present authentic Padang cuisine that brings
-                the rich traditional flavors of Indonesia right to your table. Our restaurant is dedicated to providing
-                a culinary experience that not only satisfies your taste buds but also gives you a glimpse into the rich
-                heritage of Padang, Sumatra.</p>
+              <p>Welcome to <strong>Restoran Padang</strong>! We proudly present authentic Padang cuisine that brings the rich traditional flavors of Indonesia right to your table. Our restaurant is dedicated to providing a culinary experience that not only satisfies your taste buds but also gives you a glimpse into the rich heritage of Padang, Sumatra.</p>
               <div class="d-flex align-items-center mb-4">
                 <img src="assets/img/chef-icon.png" alt="Chef Icon" class="icon mr-3">
-                <p>At Restoran Padang, we use only the freshest ingredients and traditional recipes passed down through
-                  generations. Our menu features a variety of dishes slow-cooked and seasoned to perfection. From the
-                  renowned Rendang to the delicious Ayam Pop, every dish is prepared with care and attention to detail.
-                </p>
+                <p>At Restoran Padang, we use only the freshest ingredients and traditional recipes passed down through generations. Our menu features a variety of dishes slow-cooked and seasoned to perfection. From the renowned Rendang to the delicious Ayam Pop, every dish is prepared with care and attention to detail.</p>
               </div>
-              <p>Our mission is to create a warm and inviting atmosphere where you can enjoy a meal with family and
-                friends while experiencing the true essence of Padang cuisine. Whether you're a local or visiting from
-                afar, we invite you to savor our culinary delights and create unforgettable memories.</p>
+              <p>Our mission is to create a warm and inviting atmosphere where you can enjoy a meal with family and friends while experiencing the true essence of Padang cuisine. Whether you're a local or visiting from afar, we invite you to savor our culinary delights and create unforgettable memories.</p>
             </div>
           </div>
           <!-- Right Column: Statistics -->
           <div class="col-lg-6 mb-4">
             <div class="about-stats">
-              <div class="stat">
-                <h3>50+</h3>
-                <p>Delicious Dishes</p>
+              <div class="stat d-flex align-items-center mb-3">
+                <i class="fas fa-utensils fa-3x mr-3"></i>
+                <div>
+                  <h3>50+</h3>
+                  <p>Delicious Dishes</p>
+                </div>
               </div>
-              <div class="stat">
-                <h3>10+</h3>
-                <p>Years of Experience</p>
+              <div class="stat d-flex align-items-center mb-3">
+                <i class="fas fa-clock fa-3x mr-3"></i>
+                <div>
+                  <h3>10+</h3>
+                  <p>Years of Experience</p>
+                </div>
               </div>
-              <div class="stat">
-                <h3>1000+</h3>
-                <p>Happy Customers</p>
+              <div class="stat d-flex align-items-center">
+                <i class="fas fa-smile fa-3x mr-3"></i>
+                <div>
+                  <h3>1000+</h3>
+                  <p>Happy Customers</p>
+                </div>
               </div>
             </div>
           </div>
@@ -440,164 +599,182 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         </div>
       </div>
     </div>
+  </div>
 
 
-    <!-- Menu Section -->
-    <div id="menu" class="text-center">
-      <h2 class="mb-4 pt-5">Our Menu</h2>
+  <div class="container mt-5">
+    <div id="menu" class="mt-5">
+      <h2 class="text-center mb-4 pt-5">Our Menu</h2>
       <div class="row">
-        <!-- Example Menu Item -->
-        <div class="col-md-4 mb-3">
-          <div class="card shadow">
-            <a href="detail_rendang.html">
-              <img src="assets/img/rendang.png" class="card-img-top" alt="Rendang">
-            </a>
-            <div class="card-body">
-              <h5 class="card-title">Rendang</h5>
-              <p class="card-text">Daging sapi yang dimasak perlahan dengan saus kelapa yang kaya rasa dan pedas.</p>
-              <a href="detail_rendang.html" class="btn btn-primary">View Details</a>
-            </div>
-          </div>
-        </div>
 
-        <!-- Example Menu Item -->
-        <div class="col-md-4 mb-3">
-          <div class="card shadow">
-            <a href="detail_ayam_pop.html">
-              <img src="assets/img/ayam pop.png" class="card-img-top" alt="Ayam_Pop">
-            </a>
-            <div class="card-body">
-              <h5 class="card-title">Ayam Pop</h5>
-              <p class="card-text">Ayam lembut yang direndam dalam bumbu tradisional dan digoreng dengan sempurna.</p>
-              <a href="detail_ayam_pop.html" class="btn btn-primary">View Details</a>
-            </div>
-          </div>
-        </div>
+        <!-- Loop through each menu item -->
+        <?php foreach ($menuItems as $item): ?>
+          <div class="col-md-4 mb-3">
+            <div class="card shadow">
 
-        <!-- Example Menu Item -->
-        <div class="col-md-4 mb-3">
-          <div class="card shadow">
-            <a href="detail_gulai_ikan.html">
-              <img src="assets/img/Resep-Gulai-Ikan.png" class="card-img-top" alt="Gulai_Ikan">
-            </a>
-            <div class="card-body">
-              <h5 class="card-title">Gulai Ikan</h5>
-              <p class="card-text">Ikan yang dimasak dengan saus santan yang pedas dan tajam dengan mengunakan berbagai
-                rempah.</p>
-              <a href="detail_gulai_ikan.html" class="btn btn-primary">View Details</a>
-            </div>
-          </div>
-        </div>
+              <!-- Image Section -->
+              <a href="detail_menu.php?id=<?= htmlspecialchars($item['id_menu']); ?>">
+                <img src="uploads/<?= htmlspecialchars($item['image_url']); ?>"
+                  alt="<?= htmlspecialchars($item['menu_item']); ?>"
+                  class="card-img-top" style="max-height: 200px; object-fit: cover;">
+              </a>
 
-        <!-- Example Menu Item -->
-        <div class="col-md-4 mb-3">
-          <div class="card shadow">
-            <a href="detail_sayur_nangka.html">
-              <img src="assets/img/sayur nangka.png" class="card-img-top" alt="Sayur_Nangka">
-            </a>
-            <div class="card-body">
-              <h5 class="card-title">Sayur Nangka</h5>
-              <p class="card-text">Nangka muda yang dimasak dengan santan dan rempah-rempah.</p>
-              <a href="detail_sayur_nangka.html" class="btn btn-primary">View Details</a>
+              <div class="card-body shadow">
+                <h5 class="card-title">
+                  <i class="fas fa-utensils"></i> <?= htmlspecialchars($item['menu_item']); ?>
+                </h5>
+                <p class="card-text">
+                  <i class="fas fa-info-circle"></i> <?= htmlspecialchars($item['description']); ?>
+                </p>
+                <a href="detail_menu.php?id=<?= htmlspecialchars($item['id_menu']); ?>" class="btn btn-primary">
+                  <i class="fas fa-eye"></i> View Details
+                </a>
+                <a href="edit_menu.php?id=<?= htmlspecialchars($item['id_menu']); ?>" class="btn btn-warning">
+                  <i class="fas fa-edit"></i> Edit Menu
+                </a>
+              </div>
             </div>
           </div>
-        </div>
+        <?php endforeach; ?>
 
-        <!-- Example Menu Item -->
-        <div class="col-md-4 mb-3">
-          <div class="card shadow">
-            <a href="detail_gulai_tunjang.html">
-              <img src="assets/img/gulai tunjang.png" class="card-img-top" alt="Gulai_Tunjang">
-            </a>
-            <div class="card-body">
-              <h5 class="card-title">Gulai Tunjang</h5>
-              <p class="card-text">Ini adalah gulai atau kari yang terbuat dari daging sapi (biasanya bagian kaki).</p>
-              <a href="detail_gulai_tunjang.html" class="btn btn-primary">View Details</a>
-            </div>
-          </div>
-        </div>
-
-        <!-- Example Menu Item -->
-        <div class="col-md-4 mb-3">
-          <div class="card shadow">
-            <a href="detail_sate.html">
-              <img src="assets/img/sate.png" class="card-img-top" alt="Sate">
-            </a>
-            <div class="card-body">
-              <h5 class="card-title">Sate</h5>
-              <p class="card-text">Sate ini terbuat dari daging sapi yang dipotong kecil-kecil.</p>
-              <a href="detail_sate.html" class="btn btn-primary">View Details</a>
-            </div>
-          </div>
-        </div>
-        <!-- Add other menu items here -->
       </div>
     </div>
+  </div>
 
 
-
-
-
-
-
+  <div class="parallax2">
     <div id="order" class="order-section">
       <h2 class="text-center mb-4">Place Your Order</h2>
       <form id="orderForm" method="POST" enctype="multipart/form-data">
-        <div id="dishContainer">
-          <div class="dish-item">
-            <div class="form-group">
-              <label for="customerName" class="form-label">Customer Name</label>
-              <input type="text" class="form-control form-control-lg" name="customerName" id="customerName" placeholder="Enter your name" required>
-            </div>
-            <div class="form-group">
-              <label for="dishSelection" class="form-label">Select Dish</label>
-              <select class="form-control form-control-lg" name="dishSelection" id="dishSelection" required>
-                <option value="">-- Select a Dish --</option>
-                <option value="Rendang" data-price="50000">Rendang</option>
-                <option value="Ayam Pop" data-price="45000">Ayam Pop</option>
-                <option value="Gulai Ikan" data-price="40000">Gulai Ikan</option>
-                <option value="Sayur Nangka" data-price="30000">Sayur Nangka</option>
-                <option value="Gulai Tunjang" data-price="55000">Gulai Tunjang</option>
-                <option value="Sate" data-price="35000">Sate</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label for="quantity" class="form-label">Quantity</label>
-              <input type="number" class="form-control form-control-lg quantity" name="quantity" id="quantity" min="1" value="1" required>
-            </div>
-            <div class="form-group">
-              <label for="totalPrice" class="form-label">Total Price (IDR)</label>
-              <input type="text" class="form-control form-control-lg" name="totalPrice" id="totalPrice" readonly>
-            </div>
-            <div class="form-group">
-              <label for="dateOfPurchase" class="form-label">Date of Purchase</label>
-              <input type="date" class="form-control form-control-lg" name="dateOfPurchase" id="dateOfPurchase" required>
-            </div>
-            <div class="form-group">
-              <label for="extras" class="form-label">Extras</label>
-              <div class="form-check">
-                <input class="form-check-input extra" type="checkbox" name="extras[]" value="Krispi">
-                <label class="form-check-label">Krispi</label>
-              </div>
-              <div class="form-check">
-                <input class="form-check-input extra" type="checkbox" name="extras[]" value="Sambal">
-                <label class="form-check-label">Sambal</label>
+        <div id="dishContainer" class="container">
+          <div class="row justify-content-center">
+            <div class="col-lg-8 col-md-10 mb-4">
+              <div class="card shadow-sm">
+                <div class="card-body">
+                  <div class="row">
+                    <!-- Customer Name -->
+                    <div class="col-md-6 mb-4">
+                      <div class="form-group">
+                        <label for="customerName" class="form-label">
+                          <i class="fas fa-user"></i> Customer Name
+                        </label>
+                        <input type="text" class="form-control form-control-lg" name="customerName" id="customerName" placeholder="Enter your name" required>
+                      </div>
+                    </div>
+
+                    <!-- Select Dish -->
+                    <div class="col-md-6 mb-4">
+                      <div class="form-group">
+                        <label for="dishSelection" class="form-label">
+                          <i class="fas fa-utensils"></i> Select Dish
+                        </label>
+                        <select class="form-control form-control-lg" name="dishSelection" id="dishSelection" required>
+                          <option value="">-- Select a Dish --</option>
+                          <option value="Rendang" data-price="50000">Rendang</option>
+                          <option value="Ayam Pop" data-price="45000">Ayam Pop</option>
+                          <option value="Gulai Ikan" data-price="40000">Gulai Ikan</option>
+                          <option value="Sayur Nangka" data-price="30000">Sayur Nangka</option>
+                          <option value="Gulai Tunjang" data-price="55000">Gulai Tunjang</option>
+                          <option value="Sate" data-price="35000">Sate</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <!-- Quantity -->
+                    <div class="col-md-6 mb-4">
+                      <div class="form-group">
+                        <label for="quantity" class="form-label">
+                          <i class="fas fa-sort-numeric-up-alt"></i> Quantity
+                        </label>
+                        <input type="number" class="form-control form-control-lg quantity" name="quantity" id="quantity" min="1" value="1" required>
+                      </div>
+                    </div>
+
+                    <!-- Total Price -->
+                    <div class="col-md-6 mb-4">
+                      <div class="form-group">
+                        <label for="totalPrice" class="form-label">
+                          <i class="fas fa-money-bill-wave"></i> Total Price (IDR)
+                        </label>
+                        <input type="text" class="form-control form-control-lg" name="totalPrice" id="totalPrice" readonly>
+                      </div>
+                    </div>
+
+                    <!-- Date of Purchase -->
+                    <div class="col-md-6 mb-4">
+                      <div class="form-group">
+                        <label for="dateOfPurchase" class="form-label">
+                          <i class="fas fa-calendar-alt"></i> Date of Purchase
+                        </label>
+                        <input type="date" class="form-control form-control-lg" name="dateOfPurchase" id="dateOfPurchase" required>
+                      </div>
+                    </div>
+
+                    <!-- Extras -->
+                    <div class="col-md-6 mb-4">
+                      <div class="form-group">
+                        <label for="extras" class="form-label">
+                          <i class="fas fa-plus-circle"></i> Extras
+                        </label>
+                        <div class="form-check">
+                          <input class="form-check-input extra" type="checkbox" name="extras[]" value="Krispi" id="extraKrispi">
+                          <label class="form-check-label" for="extraKrispi">Krispi</label>
+                        </div>
+                        <div class="form-check">
+                          <input class="form-check-input extra" type="checkbox" name="extras[]" value="Sambal" id="extraSambal">
+                          <label class="form-check-label" for="extraSambal">Sambal</label>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="text-center">
+                    <button type="submit" class="btn btn-primary btn-lg px-5 mt-3">
+                      <i class="fas fa-check"></i> Submit Order
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         </div>
-        <button type="submit" class="btn btn-primary btn-lg px-5">Submit Order</button>
       </form>
     </div>
+  </div>
 
 
-    <!-- Contact Section -->
-    <div id="contact" class="contact-section mt-5">
-      <h2 class="text-center mb-4">Contact Us</h2>
-      <p class="text-center">For reservations or inquiries, please email us at <a
-          href="mailto:info@restoranpadang.com">info@restoranpadang.com</a> or call us at +62 123 456 789.</p>
+
+
+
+
+  <!-- Contact Section -->
+  <div id="contact" class="contact-section mt-5">
+    <h2 class="text-center mb-4">Contact Us</h2>
+    <p class="text-center">
+    For reservations or inquiries, please email us at
+      <i class="fas fa-envelope"></i>
+     
+      <a href="mailto:info@restoranpadang.com">info@restoranpadang.com</a>
+    </p>
+    <p class="text-center">
+      <i class="fas fa-phone"></i>
+      or call us at +62 123 456 789.
+    </p>
+
+    <!-- Social Media Links -->
+    <div class="text-center mt-4">
+      <h5>Follow Us:</h5>
+      <a href="https://www.instagram.com/yourusername" target="_blank" class="mx-2">
+        <i class="fab fa-instagram fa-2x"></i>
+      </a>
+      <a href="https://www.tiktok.com/@yourusername" target="_blank" class="mx-2">
+        <i class="fab fa-tiktok fa-2x"></i>
+      </a>
+      <a href="https://x.com/yourusername" target="_blank" class="mx-2">
+        <i class="fab fa-x fa-2x"></i>
+      </a>
     </div>
   </div>
+
 
   <!-- Footer -->
   <footer class="footer">
@@ -692,6 +869,27 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Initial calculation to set default value
     calculateTotalPrice();
   </script>
+
+  <script>
+    document.getElementById('dishSelection').addEventListener('change', function() {
+      const selectedOption = this.options[this.selectedIndex];
+      const price = parseInt(selectedOption.getAttribute('data-price')) || 0;
+      const quantity = parseInt(document.getElementById('quantity').value);
+      const totalPrice = price * quantity;
+
+      document.getElementById('totalPrice').value = totalPrice.toLocaleString(); // Format as currency
+    });
+
+    document.getElementById('quantity').addEventListener('input', function() {
+      const selectedOption = document.getElementById('dishSelection').options[document.getElementById('dishSelection').selectedIndex];
+      const price = parseInt(selectedOption.getAttribute('data-price')) || 0;
+      const quantity = parseInt(this.value);
+      const totalPrice = price * quantity;
+
+      document.getElementById('totalPrice').value = totalPrice.toLocaleString(); // Format as currency
+    });
+  </script>
+
 </body>
 
 </html>

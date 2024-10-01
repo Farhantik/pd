@@ -303,43 +303,54 @@ function getOrderById($id)
 
 function updateOrder($data, $id)
 {
+  // Establish database connection
   $conn = koneksi();
   if (!$conn) {
-    return "Connection failed.";
+    return "Connection failed."; // Error message if connection fails
   }
 
-  $customer_name = htmlspecialchars($data['customer_name']);
-  $menu_item = htmlspecialchars($data['menu_item']);
-  $quantity = htmlspecialchars($data['quantity']);
-  $date_of_purchase = htmlspecialchars($data['date_of_purchase']);
+  // Prepare and sanitize the data
+  $customer_name = trim($data['customer_name']); // Trim whitespace
+  $menu_item = trim($data['menu_item']);
+  $quantity = (int)$data['quantity']; // Cast to integer
+  $date_of_purchase = $data['date_of_purchase'];
 
-
+  // Handle extras as a comma-separated string
   if (isset($data['extras']) && is_array($data['extras'])) {
-
-    $extras = htmlspecialchars(implode(", ", $data['extras']));
+    $extras = implode(", ", $data['extras']); // Convert array to string
   } else {
-    $extras = '';
+    $extras = ''; // No extras selected
   }
 
-
-  $query = "UPDATE orders SET customer_name = :customer_name, menu_item = :menu_item, quantity = :quantity, date_of_purchase = :date_of_purchase, extras = :extras WHERE id = :id";
-
+  // Prepare the SQL update statement
+  $query = "UPDATE orders SET 
+                customer_name = :customer_name, 
+                menu_item = :menu_item, 
+                quantity = :quantity, 
+                date_of_purchase = :date_of_purchase, 
+                extras = :extras 
+              WHERE id = :id";
 
   $stmt = $conn->prepare($query);
+
+  // Bind parameters to the query
   $stmt->bindParam(':customer_name', $customer_name);
   $stmt->bindParam(':menu_item', $menu_item);
-  $stmt->bindParam(':quantity', $quantity);
+  $stmt->bindParam(':quantity', $quantity, PDO::PARAM_INT);
   $stmt->bindParam(':date_of_purchase', $date_of_purchase);
   $stmt->bindParam(':extras', $extras);
   $stmt->bindParam(':id', $id, PDO::PARAM_INT);
 
-
+  // Execute the statement
   if ($stmt->execute()) {
-    return $stmt->rowCount();
+    return $stmt->rowCount(); // Return the number of affected rows
   } else {
-    return $stmt->errorInfo();
+    return $stmt->errorInfo(); // Return error information for debugging
   }
 }
+
+
+
 function insertMenu($data)
 {
   $conn = koneksi();

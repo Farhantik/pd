@@ -15,6 +15,7 @@ $menuItem = getMenuItemById($id_menu); // Mengambil data menu berdasarkan id_men
   <title>Rendang - Restoran Padang</title>
   <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"> <!-- Font Awesome -->
 
   <style>
     body {
@@ -176,7 +177,9 @@ $menuItem = getMenuItemById($id_menu); // Mengambil data menu berdasarkan id_men
 <body>
   <!-- Navbar -->
   <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
-    <a class="navbar-brand" href="index.php">Restoran Padang</a>
+    <a class="navbar-brand" href="index.php">
+      <i class="fas fa-utensils"></i> Restoran Padang
+    </a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
       aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
@@ -184,7 +187,9 @@ $menuItem = getMenuItemById($id_menu); // Mengambil data menu berdasarkan id_men
     <div class="collapse navbar-collapse" id="navbarNav">
       <ul class="navbar-nav">
         <li class="nav-item">
-          <a class="nav-link" href="customer.php#menu">Menu</a>
+          <a class="nav-link" href="customer.php#menu">
+            <i class="fas fa-book-open"></i> Menu
+          </a>
         </li>
       </ul>
     </div>
@@ -203,7 +208,9 @@ $menuItem = getMenuItemById($id_menu); // Mengambil data menu berdasarkan id_men
               <h2 class="card-title"><?= htmlspecialchars($menuItem['menu_item']); ?></h2>
               <p class="card-text"><?= htmlspecialchars($menuItem['description']); ?></p>
               <p class="card-text"><strong>Harga:</strong> Rp. <?= number_format($menuItem['price'], 2, ',', '.'); ?></p>
-              <a href="customer.html#order" class="btn btn-primary">Order Now</a>
+              <a href="customer.php#order" class="btn btn-primary">
+                <i class="fas fa-shopping-cart"></i> Order Now
+              </a>
             </div>
           </div>
         </div>
@@ -219,4 +226,5 @@ $menuItem = getMenuItemById($id_menu); // Mengambil data menu berdasarkan id_men
   <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
+
 </html>
