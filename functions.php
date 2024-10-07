@@ -49,7 +49,7 @@ function login($data)
   $password = htmlspecialchars($data['password']);
 
 
-  $query = "SELECT * FROM users WHERE username = :username";
+  $query = "SELECT role, password FROM users WHERE username = :username";
   $stmt = $conn->prepare($query);
   $stmt->bindParam(':username', $username);
   $stmt->execute();
@@ -59,25 +59,41 @@ function login($data)
   if ($result) {
     if (password_verify($password, $result['password'])) {
       $_SESSION['login'] = true;
+      $_SESSION['role'] = $result['role'];
 
+      // Debugging session after setting the role
+      echo "<pre>";
+      print_r($_SESSION); // Should include 'role'
+      echo "</pre>";
 
-      if ($result['role'] === 'admin') {
+      // Redirect based on role...
+    }
+  }
+
+  // After validating user credentials
+  if ($result) {
+    if (password_verify($password, $result['password'])) {
+      $_SESSION['login'] = true;
+      $_SESSION['role'] = $result['role']; // Make sure this line is present
+
+      // Redirect based on role
+      if (in_array($result['role'], ['admin', 'admin1', 'admin2'])) {
         header("Location: index.php");
-      } else if ($result['role'] === 'customer') {
+      } elseif ($result['role'] === 'customer') {
         header("Location: customer.php");
       } else {
-
         header("Location: error.php");
       }
       exit;
     }
   }
-
-  return [
-    'error' => true,
-    'pesan' => 'Username / Password Salah!'
-  ];
 }
+
+return [
+  'error' => true,
+  'pesan' => 'Username / Password Salah!'
+];
+
 
 
 function registrasi($data)
@@ -202,34 +218,6 @@ function getMenuItems()
 
 
 
-function upload()
-{
-
-  if (isset($_FILES['image_url']) && $_FILES['image_url']['error'] === UPLOAD_ERR_OK) {
-    $fileTmpPath = $_FILES['image_url']['tmp_name'];
-    $fileName = $_FILES['image_url']['name'];
-    $fileSize = $_FILES['image_url']['size'];
-    $fileType = $_FILES['image_url']['type'];
-    $fileNameComponents = explode(".", $fileName);
-    $fileExtension = strtolower(end($fileNameComponents));
-
-
-    $uploadFileDir = './uploads/';
-    $newFileName = uniqid('', true) . '.' . $fileExtension;
-    $destPath = $uploadFileDir . $newFileName;
-
-
-    if (move_uploaded_file($fileTmpPath, $destPath)) {
-      return $newFileName;
-    } else {
-      throw new Exception('Error moving the uploaded file.');
-    }
-  } else {
-    throw new Exception('No file uploaded or there was an upload error.');
-  }
-}
-
-
 function insertOrder($customerName, $dish, $quantity, $totalPrice, $dateOfPurchase, $extras)
 {
   $conn = koneksi();
@@ -348,113 +336,170 @@ function updateOrder($data, $id)
     return $stmt->errorInfo(); // Return error information for debugging
   }
 }
+function upload()
+{
+  $target_dir = "uploads/"; // Define your target directory
 
+  // Check if the uploads directory exists, create if it doesn't
+  if (!is_dir($target_dir)) {
+    mkdir($target_dir, 0755, true);
+  }
+
+  $file_name = basename($_FILES["image"]["name"]);
+  $target_file = $target_dir . $file_name;
+  $imageFileType = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
+
+  // Check if the file is an actual image
+  $check = getimagesize($_FILES["image"]["tmp_name"]);
+  if ($check === false) {
+    return "File is not an image.";
+  }
+
+  // Check if the file already exists and add a unique identifier (timestamp) if it does
+  if (file_exists($target_file)) {
+    $file_name = time() . "_" . $file_name;
+    $target_file = $target_dir . $file_name;
+  }
+
+  // Check file size (optional)
+  if ($_FILES["image"]["size"] > 500000) { // Set the size limit (e.g., 500KB)
+    return "Sorry, your file is too large.";
+  }
+
+  // Allow only certain file formats (optional)
+  $allowed_types = ['jpg', 'jpeg', 'png', 'gif'];
+  if (!in_array($imageFileType, $allowed_types)) {
+    return "Sorry, only JPG, JPEG, PNG & GIF files are allowed.";
+  }
+
+  // Try to upload the file
+  if (move_uploaded_file($_FILES["image"]["tmp_name"], $target_file)) {
+    return $target_file; // Return the path to the uploaded file
+  } else {
+    return "Sorry, there was an error uploading your file.";
+  }
+}
+
+
+
+
+
+
+
+
+
+function uploadImage()
+{
+  // Check if an image was uploaded without errors
+  if (isset($_FILES['image']) && $_FILES['image']['error'] == 0) {
+    $targetDir = "uploads/"; // Directory to store images
+    $fileName = basename($_FILES['image']['name']);
+    $targetFilePath = $targetDir . $fileName;
+
+    // Get the file extension
+    $fileType = pathinfo($targetFilePath, PATHINFO_EXTENSION);
+
+    // Allow certain file formats (e.g., jpg, png, gif)
+    $allowedTypes = ['jpg', 'jpeg', 'png', 'gif'];
+    if (in_array(strtolower($fileType), $allowedTypes)) {
+      // Check file size (optional, e.g., max 5MB)
+      if ($_FILES['image']['size'] < 5 * 1024 * 1024) {
+        // Move the file to the target directory
+        if (move_uploaded_file($_FILES['image']['tmp_name'], $targetFilePath)) {
+          return $fileName; // Return the file name to store in DB
+        } else {
+          return 'Failed to upload image.';
+        }
+      } else {
+        return 'File size exceeds limit.';
+      }
+    } else {
+      return 'Invalid file format. Only JPG, PNG, and GIF are allowed.';
+    }
+  }
+  return 'No image uploaded.';
+}
 
 
 function insertMenu($data)
 {
-  $conn = koneksi();
+  global $conn; // Ensure you have access to your DB connection
 
-  if (!$conn) {
-    return false;
-  }
+  // Prepare the SQL statement, now including `status`
+  $stmt = $conn->prepare("INSERT INTO menu (menu_item, description, price, stok_menu, resi, image_url, role, status) 
+                          VALUES (:menu_item, :description, :price, :stok_menu, :resi, :image_url, :role, :status)");
+
+  // Bind parameters to the statement
+  $stmt->bindParam(':menu_item', $data['menu_item']);
+  $stmt->bindParam(':description', $data['description']);
+  $stmt->bindParam(':price', $data['price']);
+  $stmt->bindParam(':stok_menu', $data['stok_menu']);
+  $stmt->bindParam(':resi', $data['resi']);
+  $stmt->bindParam(':image_url', $data['image_url']); // Bind image URL
+  $stmt->bindParam(':role', $data['role']); // Bind role
+  $stmt->bindParam(':status', $data['status']); // Bind status
 
   try {
+    // Execute the statement
+    $stmt->execute();
 
-    $conn->beginTransaction();
-    $status = 1;
-
-    $queryMenu = "INSERT INTO menu (menu_item, description, price, stok_menu, resi, image_url, created_at, status) 
-                      VALUES (:menu_item, :description, :price, :stok_menu, :resi, :image_url, CURRENT_TIMESTAMP, :status)";
-    $stmtMenu = $conn->prepare($queryMenu);
-
-
-    $stmtMenu->bindParam(':menu_item', $data['menu_item']);
-    $stmtMenu->bindParam(':description', $data['description']);
-    $stmtMenu->bindParam(':price', $data['price']);
-    $stmtMenu->bindParam(':stok_menu', $data['stok_menu']);
-    $stmtMenu->bindParam(':resi', $data['resi'], PDO::PARAM_INT);
-    $stmtMenu->bindParam(':image_url', $data['image_url']);
-    $stmtMenu->bindParam(':status', $status);
-
-
-    if (!$stmtMenu->execute()) {
-      throw new PDOException("Insert to menu table failed");
-    }
-
-
-    $id_menu = $conn->lastInsertId();
-
-
-    $status = 1;
-
-
-    $checkQuery = "SELECT COUNT(*) FROM log_menu WHERE id_menu = :id_menu";
-    $stmtCheck = $conn->prepare($checkQuery);
-    $stmtCheck->bindParam(':id_menu', $id_menu, PDO::PARAM_INT);
-    $stmtCheck->execute();
-
-    $count = $stmtCheck->fetchColumn();
-
-
-    if ($count == 0) {
-
-      $queryLog_menu = "INSERT INTO log_menu (id_menu, menu_item, description, price, stok_menu, resi, image_url, created_at, status) 
-                             VALUES (:id_menu, :menu_item, :description, :price, :stok_menu, :resi, :image_url, CURRENT_TIMESTAMP, :status)";
-
-      $stmtLog_menu = $conn->prepare($queryLog_menu);
-
-
-      $stmtLog_menu->bindParam(':id_menu', $id_menu);
-      $stmtLog_menu->bindParam(':menu_item', $data['menu_item']);
-      $stmtLog_menu->bindParam(':description', $data['description']);
-      $stmtLog_menu->bindParam(':price', $data['price']);
-      $stmtLog_menu->bindParam(':stok_menu', $data['stok_menu']);
-      $stmtLog_menu->bindParam(':resi', $data['resi'], PDO::PARAM_INT);
-      $stmtLog_menu->bindParam(':image_url', $data['image_url']);
-      $stmtLog_menu->bindParam(':status', $status);
-
-
-      $stmtLog_menu->execute();
-    } else {
-      echo "<script>alert('Data with id_menu $id_menu already exists in the history table. No new entry added.');</script>";
-    }
-
-
-    $conn->commit();
-
-    return true;
+    // Return the last inserted ID
+    return $conn->lastInsertId();
   } catch (PDOException $e) {
-
-    $conn->rollBack();
-    echo "Error: " . $e->getMessage();
-    return false;
+    // Handle error (optional: log the error or show a user-friendly message)
+    echo "<div class='alert alert-danger'>Error inserting menu item: " . htmlspecialchars($e->getMessage()) . "</div>";
+    return false; // or throw an exception if preferred
   }
 }
 
 
-
-
-
-
-
-function insertLog_menu($conn, $id_menu, $data)
+function insertLogMenu($data)
 {
+  global $conn; // Ensure you have access to your DB connection
+
+  $stmt = $conn->prepare("INSERT INTO log_menu (id_menu, resi, menu_item, description, price, stok_menu, image_url, status) 
+                            VALUES (:id_menu, :resi, :menu_item, :description, :price, :stok_menu, :image_url, :status)");
+
+  $stmt->bindParam(':id_menu', $data['id_menu']);
+  $stmt->bindParam(':resi', $data['resi']);
+  $stmt->bindParam(':menu_item', $data['menu_item']);
+  $stmt->bindParam(':description', $data['description']);
+  $stmt->bindParam(':price', $data['price']);
+  $stmt->bindParam(':stok_menu', $data['stok_menu']);
+  $stmt->bindParam(':image_url', $data['image_url']); // Bind image URL
+  $stmt->bindParam(':status', $data['status']);
+
+  $stmt->execute();
+}
+
+
+function insertLog_menu($data) // Removed the $conn parameter as it's already global
+{
+  global $conn;
+
   $query = "INSERT INTO log_menu (id_menu, menu_item, description, price, stok_menu, resi, image_url, created_at, status) 
               VALUES (:id_menu, :menu_item, :description, :price, :stok_menu, :resi, :image_url, CURRENT_TIMESTAMP, :status)";
 
   $stmt = $conn->prepare($query);
-  $stmt->execute([
-    ':id_menu' => $id_menu,
-    ':menu_item' => $data['menu_item'],
-    ':description' => $data['description'],
-    ':price' => $data['price'],
-    ':stok_menu' => $data['stok_menu'],
-    ':resi' => $data['resi'],
-    ':image_url' => $data['image_url'],
-    ':status' => 'insert'
-  ]);
+
+  // Bind parameters using the data array
+  $stmt->bindParam(':id_menu', $data['id_menu']);
+  $stmt->bindParam(':menu_item', $data['menu_item']);
+  $stmt->bindParam(':description', $data['description']);
+  $stmt->bindParam(':price', $data['price']);
+  $stmt->bindParam(':stok_menu', $data['stok_menu']);
+  $stmt->bindParam(':resi', $data['resi']);
+  $stmt->bindParam(':image_url', $data['image_url']);
+  $status = 'insert'; // Assuming you want to set the status to 'insert'
+  $stmt->bindParam(':status', $status);
+
+  try {
+    $stmt->execute();
+  } catch (PDOException $e) {
+    echo "<div class='alert alert-danger'>Error inserting log menu: " . htmlspecialchars($e->getMessage()) . "</div>";
+  }
 }
+
 
 function deleteMenu($id_menu)
 {
@@ -485,66 +530,78 @@ function deleteMenu($id_menu)
 
 
 
-function updateMenuItem($id_menu, $menu_item, $description, $price, $stok_menu, $image_url, $resi)
+function updateMenuItem($id_menu, $menu_item, $description, $price, $stok_menu, $image_url, $resi, $role)
 {
   $conn = koneksi();
 
   try {
+    // Begin transaction
     $conn->beginTransaction();
 
     // Validate input fields
-    if (empty($menu_item) || empty($description) || empty($price) || empty($stok_menu)) {
+    if (empty($menu_item) || empty($description) || !is_numeric($price) || empty($stok_menu) || empty($role)) {
       throw new Exception("All fields must be filled out correctly.");
     }
 
-    if (!is_numeric($price) || $price <= 0) {
-      throw new Exception("Invalid price value.");
+    // Ensure the price is a positive number
+    if ($price <= 0) {
+      throw new Exception("Invalid price value. Price must be a positive number.");
     }
 
+    // Validate stock status
     $validStockStatuses = ['available', 'not_available'];
     if (!in_array($stok_menu, $validStockStatuses)) {
       throw new Exception("Invalid stock status. Please choose either 'available' or 'not_available'.");
     }
 
-    // Update the old menu item status to inactive (2)
+    // Step 1: Update the current menu item status to inactive (status = 2)
     $update_query = "UPDATE menu SET status = :status WHERE id_menu = :id_menu";
     $stmt = $conn->prepare($update_query);
     $stmt->execute(['status' => 2, 'id_menu' => $id_menu]);
 
+    // Check if any rows were updated
     if ($stmt->rowCount() === 0) {
-      throw new Exception("No rows updated. Check if the id_menu exists.");
+      throw new Exception("No rows updated. Please check if the menu item ID exists.");
     }
 
-    // Insert the new menu item
-    $insert_query = "INSERT INTO menu (menu_item, description, price, status, stok_menu, image_url, resi)
-                         VALUES (:menu_item, :description, :price, :status, :stok_menu, :image_url, :resi)";
+    // Step 2: Insert a new record for the updated menu item including the role
+    $insert_query = "INSERT INTO menu (menu_item, description, price, status, stok_menu, image_url, resi, role)
+                         VALUES (:menu_item, :description, :price, :status, :stok_menu, :image_url, :resi, :role)";
     $stmt = $conn->prepare($insert_query);
+
+    // Execute the insert statement
     if (!$stmt->execute([
-      'menu_item' => $menu_item,
+      'menu_item'   => $menu_item,
       'description' => $description,
-      'price' => $price,
-      'status' => 1, // Active status for new item
-      'stok_menu' => $stok_menu,
-      'image_url' => $image_url,
-      'resi' => $resi
+      'price'       => $price,
+      'status'      => 1, // Active status for the new item
+      'stok_menu'   => $stok_menu,
+      'image_url'   => $image_url, // Use the new image URL
+      'resi'        => $resi,
+      'role'        => $role // Include the role parameter
     ])) {
-      throw new Exception("Failed to insert new menu item.");
+      throw new Exception("Failed to insert the new menu item.");
     }
 
-    // Commit the transaction
+    // Commit the transaction if everything went fine
     $conn->commit();
     return true; // Return true on success
+
   } catch (PDOException $e) {
+    // Roll back the transaction if a database error occurs
     $conn->rollBack();
-    echo "<div class='alert alert-danger'>Database error: " . $e->getMessage() . "</div>";
-    return false; // Return false on database error
+    echo "<div class='alert alert-danger'>Database error: " . htmlspecialchars($e->getMessage()) . "</div>";
+    return false;
   } catch (Exception $e) {
-    echo "<div class='alert alert-danger'>" . $e->getMessage() . "</div>";
-    return false; // Return false on validation error
+    // Handle other exceptions (like validation errors)
+    echo "<div class='alert alert-danger'>" . htmlspecialchars($e->getMessage()) . "</div>";
+    return false;
   } finally {
+    // Close the database connection
     $conn = null;
   }
 }
+
 
 
 

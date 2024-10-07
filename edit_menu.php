@@ -2,10 +2,13 @@
 session_start();
 require 'functions.php';
 
-// Check if the user is logged in
-if (!isset($_SESSION['login'])) {
-  header("Location: sign-in.php");
-  exit;
+// Ensure the user is logged in and has a valid role
+if (!isset($_SESSION['login']) || !$_SESSION['login']) {
+  die("Access denied: You must log in first.");
+}
+
+if (!isset($_SESSION['role'])) {
+  die("Access denied: User role not defined.");
 }
 
 // Get the menu item ID from the URL
@@ -25,7 +28,7 @@ if ($item === false) {
   exit;
 }
 
-// Generate or retrieve the resi value
+// Generate or retrieve the 'resi' value
 $resi = $item['resi'] ?? generateResiForMenuItem($id_menu);
 if ($resi === null) {
   echo "<div class='alert alert-danger'>Resi value is missing or invalid.</div>";
@@ -34,24 +37,30 @@ if ($resi === null) {
 
 // Handle form submission
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
-  // Validate and sanitize numeric inputs
-  $price = isset($_POST['price']) ? floatval($_POST['price']) : 0.00;
-  if ($price <= 0) {
+  // Sanitize inputs
+  $menu_item = filter_input(INPUT_POST, 'menu_item', FILTER_SANITIZE_STRING);
+  $description = filter_input(INPUT_POST, 'description', FILTER_SANITIZE_STRING);
+  $price = filter_input(INPUT_POST, 'price', FILTER_VALIDATE_FLOAT);
+
+  // Check if price is valid
+  if ($price === false || $price <= 0) {
     echo "<div class='alert alert-danger'>Please enter a valid price.</div>";
     exit;
   }
 
-  // Validate stok_menu
+  // Validate stok_menu value
   $stok_menu = in_array($_POST['stok_menu'], ['available', 'not_available']) ? $_POST['stok_menu'] : 'not_available';
 
-  // Upload the image, default to old image URL if upload fails
-  $image_url = upload();
-  if ($image_url === false) {
-    $image_url = $item['image_url'];
+  // Handle image upload
+  $image_url = uploadImage();
+  if (!is_string($image_url) || strpos($image_url, 'Failed') !== false) {
+    echo "<script>alert('Failed to upload image: " . htmlspecialchars($image_url) . "');</script>";
+    return; // Stop execution if there's an error
   }
 
-  // Update the menu item
-  $updateSuccess = updateMenuItem($id_menu, $_POST['menu_item'], $_POST['description'], $price, $stok_menu, $image_url, $resi);
+
+  // Update the menu item in the database
+  $updateSuccess = updateMenuItem($id_menu, $menu_item, $description, $price, $stok_menu, $image_url, $resi, $_SESSION['role']);
 
   if ($updateSuccess) {
     // Redirect to index or another page after successful update
@@ -63,6 +72,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 }
 ?>
 
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -72,6 +82,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
   <title>Edit Menu</title>
   <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css?family=Roboto:400,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <style>
     body {
       background-color: #010417;
@@ -126,18 +137,28 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
       font-size: 18px;
       cursor: pointer;
       width: 100%;
+      transition: background-color 0.3s ease;
     }
 
     button:hover {
       background-color: #ffdd33;
     }
 
+    .navbar {
+      background-color: #010417;
+    }
+
     .nav-link {
       color: #FFD700 !important;
+      transition: color 0.3s;
     }
 
     .nav-link:hover {
       color: #ffdd33 !important;
+    }
+
+    .navbar-brand img {
+      filter: brightness(0) invert(1);
     }
 
     img {
@@ -156,15 +177,19 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         font-size: 1.5rem;
       }
     }
-  </style>
 
+    .form-group i {
+      color: #FFD700;
+      margin-right: 5px;
+    }
+  </style>
 </head>
 
 <body>
   <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
     <a class="navbar-brand d-flex align-items-center" href="#">
       <img src="assets/img/logo.png" alt="Logo" width="30" height="30" class="d-inline-block align-top mr-2">
-      Restoran Padang
+      <span class="font-weight-bold">Restoran Padang</span>
     </a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav"
       aria-expanded="false" aria-label="Toggle navigation">
@@ -173,28 +198,31 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     <div class="collapse navbar-collapse" id="navbarNav">
       <ul class="navbar-nav ml-auto">
         <li class="nav-item">
-          <a class="nav-link" href="index.php">Kembali</a>
+          <a class="nav-link" href="index.php">
+            <i class="fas fa-arrow-left"></i> Kembali
+          </a>
         </li>
       </ul>
     </div>
   </nav>
+
   <div class="container mt-5">
     <h1>Edit Menu Item</h1>
     <form action="edit_menu.php?id=<?= htmlspecialchars($item['id_menu']); ?>" method="POST" enctype="multipart/form-data">
       <div class="form-group">
-        <label for="menu_item">Menu Item</label>
+        <label for="menu_item"><i class="fas fa-utensils"></i> Menu Item</label>
         <input type="text" class="form-control" id="menu_item" name="menu_item" value="<?= htmlspecialchars($item['menu_item']); ?>" required>
       </div>
       <div class="form-group">
-        <label for="description">Description</label>
+        <label for="description"><i class="fas fa-pencil-alt"></i> Description</label>
         <textarea class="form-control" id="description" name="description" rows="3" required><?= htmlspecialchars($item['description']); ?></textarea>
       </div>
       <div class="form-group">
-        <label for="price">Price</label>
+        <label for="price"><i class="fas fa-tags"></i> Price</label>
         <input type="number" class="form-control" id="price" name="price" step="0.01" value="<?= htmlspecialchars($item['price']); ?>" required>
       </div>
       <div class="form-group">
-        <label for="stok_menu">Stok Menu</label>
+        <label for="stok_menu"><i class="fas fa-warehouse"></i> Stok Menu</label>
         <select class="form-control" id="stok_menu" name="stok_menu" required>
           <option value="available" <?= $item['stok_menu'] == 'available' ? 'selected' : ''; ?>>Available</option>
           <option value="not_available" <?= $item['stok_menu'] == 'not_available' ? 'selected' : ''; ?>>Not Available</option>
@@ -209,14 +237,16 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         <?php endif; ?>
       </div>
       <div class="form-group">
-        <label for="image_url">Upload New Image</label>
-        <input type="file" class="form-control-file" id="image_url" name="image_url" accept="image/*">
+        <label for="image">Upload New Image:</label>
+        <input type="file" name="image" id="image" class="form-control-file">
       </div>
-      <button type="submit" class="btn btn-primary">Update Menu</button>
+      <input type="hidden" name="resi" value="<?= htmlspecialchars($resi); ?>">
+      <button type="submit" class="btn btn-primary">Update Menu Item</button>
     </form>
   </div>
+
   <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 

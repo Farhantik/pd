@@ -2,29 +2,40 @@
 session_start();
 require 'functions.php';
 
-
+// Check if the user is logged in
 if (!isset($_SESSION['login'])) {
   header("Location: sign-in.php");
   exit;
 }
 
-
+// Establish a connection to the database
 $conn = koneksi();
 
-$menuItems = getAllMenuItems();
 try {
-
+  // Prepare and execute the query to fetch menu items
   $query = "SELECT * FROM menu WHERE status = '1'";
   $stmt = $conn->prepare($query);
   $stmt->execute();
+
+  // Fetch all active menu items
   $menuItems = $stmt->fetchAll(PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
-  echo "<div class='alert alert-danger'>Database error: " . $e->getMessage() . "</div>";
+  // Handle any database errors
+  echo "<div class='alert alert-danger'>Database error: " . htmlspecialchars($e->getMessage()) . "</div>";
   exit;
 }
 
+// Optionally, check if there are any menu items and handle accordingly
+if (empty($menuItems)) {
+  echo "<div class='alert alert-warning'>No active menu items found.</div>";
+}
 
+// Check user role for validation
+$currentUserRole = $_SESSION['role'] ?? null; // Get the logged-in user's role
+
+// Continue with the rest of your page logic (e.g., displaying menu items)
 ?>
+
 
 
 
@@ -41,7 +52,7 @@ try {
     rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-  
+
 
   <link rel="stylesheet" href="style.css">
   <style>
@@ -296,7 +307,7 @@ try {
         <h2 class="mb-0">Menu Items</h2>
       </div>
       <div class="card-body p-4">
-        <!-- Tambahkan table-responsive agar tabel dapat discroll di layar kecil -->
+        <!-- Add table-responsive for scrolling on small screens -->
         <div class="table-responsive">
           <table class="table table-hover table-bordered text-center" style="color: #000000;">
             <thead class="thead-light">
@@ -333,14 +344,15 @@ try {
                     <td><?= date('d-m-Y', strtotime($item['created_at'])); ?></td>
                     <td><?= htmlspecialchars($item['stok_menu']); ?></td>
                     <td>
-                      <a href="edit_menu.php?id=<?= $item['id_menu']; ?>" class="btn btn-warning btn-sm">
-                        <i class="fas fa-edit"></i> Edit
-                      </a>
+                      <?php if ($currentUserRole === 'admin1' && $item['role'] === 'admin'): ?>
+                        <button class="btn btn-warning btn-sm" onclick="alert('Access Denied: You cannot edit this item.');">Edit</button>
+                      <?php else: ?>
+                        <a href="edit_menu.php?id=<?= $item['id_menu']; ?>" class="btn btn-warning btn-sm">Edit</a>
+                      <?php endif; ?>
                       <button class="btn btn-danger btn-sm" onclick="deleteMenu(<?= $item['id_menu']; ?>)">
                         <i class="fas fa-trash"></i> Delete
                       </button>
                     </td>
-
                   </tr>
                 <?php endforeach; ?>
               <?php endif; ?>
@@ -353,6 +365,8 @@ try {
       </div>
     </div>
   </div>
+
+
 
   <script>
     function deleteMenu(id) {
@@ -387,42 +401,42 @@ try {
 
 
 
-<div class="container mt-5">
-  <div id="menu" class="mt-5">
-    <h2 class="text-center mb-4 pt-5">Our Menu</h2>
-    <div class="row">
+  <div class="container mt-5">
+    <div id="menu" class="mt-5">
+      <h2 class="text-center mb-4 pt-5">Our Menu</h2>
+      <div class="row">
 
-      <!-- Loop through each menu item -->
-      <?php foreach ($menuItems as $item): ?>
-        <div class="col-md-4 mb-3">
-          <div class="card shadow">
+        <!-- Loop through each menu item -->
+        <?php foreach ($menuItems as $item): ?>
+          <div class="col-md-4 mb-3">
+            <div class="card shadow">
 
-            <!-- Image Section -->
-            <a href="detail_menu.php?id=<?= htmlspecialchars($item['id_menu']); ?>">
-              <img src="uploads/<?= htmlspecialchars($item['image_url']); ?>"
-                alt="<?= htmlspecialchars($item['menu_item']); ?>"
-                class="card-img-top" style="max-height: 200px; object-fit: cover;">
-            </a>
-
-            <div class="card-body shadow">
-              <h5 class="card-title"><?= htmlspecialchars($item['menu_item']); ?></h5>
-              <p class="card-text"><?= htmlspecialchars($item['description']); ?></p>
-
-              <!-- Buttons with Icons -->
-              <a href="detail_menu.php?id=<?= htmlspecialchars($item['id_menu']); ?>" class="btn btn-primary">
-                <i class="fas fa-eye"></i> View Details
+              <!-- Image Section -->
+              <a href="detail_menu.php?id=<?= htmlspecialchars($item['id_menu']); ?>">
+                <img src="uploads/<?= htmlspecialchars($item['image_url']); ?>"
+                  alt="<?= htmlspecialchars($item['menu_item']); ?>"
+                  class="card-img-top" style="max-height: 200px; object-fit: cover;">
               </a>
-              <a href="edit_menu.php?id=<?= htmlspecialchars($item['id_menu']); ?>" class="btn btn-warning">
-                <i class="fas fa-edit"></i> Edit Menu
-              </a>
+
+              <div class="card-body shadow">
+                <h5 class="card-title"><?= htmlspecialchars($item['menu_item']); ?></h5>
+                <p class="card-text"><?= htmlspecialchars($item['description']); ?></p>
+
+                <!-- Buttons with Icons -->
+                <a href="detail_menu.php?id=<?= htmlspecialchars($item['id_menu']); ?>" class="btn btn-primary">
+                  <i class="fas fa-eye"></i> View Details
+                </a>
+                <a href="edit_menu.php?id=<?= htmlspecialchars($item['id_menu']); ?>" class="btn btn-warning">
+                  <i class="fas fa-edit"></i> Edit Menu
+                </a>
+              </div>
             </div>
           </div>
-        </div>
-      <?php endforeach; ?>
+        <?php endforeach; ?>
 
+      </div>
     </div>
   </div>
-</div>
 
   <!-- Order List Table -->
   <div class="card">

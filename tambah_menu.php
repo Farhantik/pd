@@ -5,46 +5,59 @@ require_once 'functions.php';
 try {
   $conn = koneksi();
 } catch (PDOException $e) {
-  die("Connection failed: " . $e->getMessage());
+  die("Connection failed: " . htmlspecialchars($e->getMessage()));
 }
 
+session_start(); // Start session
+
+// Check if user is logged in and role is set
+if (!isset($_SESSION['login']) || !$_SESSION['login']) {
+  die("Access denied: You must log in first.");
+}
+if (!isset($_SESSION['role'])) {
+  die("Access denied: User role not defined.");
+}
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-
+  // Sanitize and validate input data
   $menu_item = filter_input(INPUT_POST, 'menu_item', FILTER_SANITIZE_STRING);
   $description = filter_input(INPUT_POST, 'description', FILTER_SANITIZE_STRING);
   $price = filter_input(INPUT_POST, 'price', FILTER_VALIDATE_FLOAT);
   $stok_menu = filter_input(INPUT_POST, 'stok_menu', FILTER_SANITIZE_STRING);
 
+  // Validate inputs
   if (!$menu_item || !$description || $price === false || !$stok_menu) {
-    throw new Exception("Invalid input data.");
+    die("Invalid input data. Please fill in all required fields correctly.");
   }
 
-
+  // Generate unique 'resi' value
   $resi = mt_rand(100000, 999999);
 
-
-  $image_url = upload();
-  if (!$image_url) {
-    throw new Exception("Failed to upload image.");
+  // Handle image upload
+  $image_url = uploadImage();
+  if (!is_string($image_url) || strpos($image_url, 'Failed') !== false) {
+    echo "<script>alert('Failed to upload image: " . htmlspecialchars($image_url) . "');</script>";
+    return; // Stop execution if there's an error
   }
 
-
+  // Prepare data to insert into the menu table
   $data = [
     'menu_item' => $menu_item,
     'description' => $description,
     'price' => round($price, 2),
     'stok_menu' => $stok_menu,
     'resi' => $resi,
-    'image_url' => $image_url,
+    'image_url' => $image_url, // Use the uploaded image filename
+    'role' => $_SESSION['role'], // Access role from session
+    'status' => 1
   ];
-
 
   $conn->beginTransaction();
   try {
+    // Insert menu item
     $id_menu = insertMenu($data);
 
-
+    // Prepare log_menu data, including the role
     $log_menuData = [
       'id_menu' => $id_menu,
       'resi' => $resi,
@@ -52,19 +65,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       'description' => $description,
       'price' => round($price, 2),
       'stok_menu' => $stok_menu,
-      'image_url' => $image_url,
+      'image_url' => $image_url, // Use the uploaded image filename
       'status' => 1
     ];
 
+    // Insert log menu item
+    insertLogMenu($log_menuData);
 
     $conn->commit();
     echo "<script>alert('Menu and history successfully added!');</script>";
+    // Redirect to another page after successful submission
+    header("Location: index.php"); // Change this to your desired page
+    exit;
   } catch (Exception $e) {
     $conn->rollBack();
-    echo "<script>alert('Error: " . $e->getMessage() . "');</script>";
+    echo "<script>alert('Error: " . htmlspecialchars($e->getMessage()) . "');</script>";
   }
 }
+
 ?>
+
+
+
 
 <!-- Form tambah menu -->
 <!DOCTYPE html>
@@ -193,8 +215,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       </div>
 
       <div class="form-group">
-        <label for="image_url">Upload Gambar:</label>
-        <input type="file" name="image_url" id="image_url" required>
+        <label for="image">Upload Image:</label>
+        <input type="file" name="image" id="image" accept="image/*" required>
       </div>
 
       <button type="submit">Tambah Menu</button>

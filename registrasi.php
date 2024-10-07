@@ -127,6 +127,8 @@ if (isset($_POST['registrasi'])) {
         <select class="form-control" id="floatingRole" name="role" required>
           <option value="">Select Role</option>
           <option value="admin">Admin</option>
+          <option value="admin1">Admin1</option>
+          <option value="admin2">Admin2</option>
           <option value="customer">Customer</option>
         </select>
       </div>

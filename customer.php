@@ -48,443 +48,607 @@ $menuItems = getAllMenuItems($conn); // Make sure to pass $conn
   <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+</head>
+<link rel="stylesheet" href="style.css">
 
-  <style>
-    body {
-      font-family: 'Roboto', sans-serif;
-      background-color: #010417;
-      /* Lebih gelap, hitam */
-      margin: 0;
-      padding: 0;
+<style>
+  body {
+    font-family: 'Roboto', sans-serif;
+    background-color: #010417;
+    /* Lebih gelap, hitam */
+    margin: 0;
+    padding: 0;
+  }
+
+  .header-image {
+    width: 100%;
+    height: 400px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .header-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: brightness(50%);
+    /* Lebih gelap untuk kontras dengan teks emas */
+  }
+
+  .header-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #FFD700;
+    /* Warna emas */
+    text-align: center;
+    font-size: 3rem;
+    font-weight: 700;
+  }
+
+  .navbar {
+    background-color: #000;
+  }
+
+  .navbar-nav .nav-link {
+    color: #FFD700 !important;
+    /* Warna emas */
+  }
+
+  .navbar-nav .nav-link:hover {
+    color: #ffffff !important;
+  }
+
+  .card {
+    border: none;
+    border-radius: 15px;
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .card:hover {
+    transform: scale(1.05);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+  }
+
+  .card-img-top {
+    height: 250px;
+    object-fit: cover;
+    color: #FFD700;
+  }
+
+  .card-body {
+    background-color: #333333;
+    /* Lebih gelap untuk konsistensi */
+    color: #FFD700;
+    /* Emas */
+    padding: 1.5rem;
+  }
+
+  .btn-primary {
+    background-color: #FFD700;
+    /* Emas */
+    border: none;
+    color: #000;
+    font-weight: bold;
+    padding: 10px 20px;
+    border-radius: 50px;
+  }
+
+  .btn-primary:hover {
+    background-color: #f7c600;
+    color: #000;
+  }
+
+  .order-form {
+    background-color: #1f1f1f;
+    border-radius: 15px;
+    padding: 30px;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+  }
+
+  .order-form h2 {
+    color: #FFD700;
+    font-family: 'Playfair Display', serif;
+  }
+
+  .contact-section {
+    background-color: #000;
+    color: #FFD700;
+    /* Emas */
+    padding: 40px 20px;
+    border-radius: 15px;
+  }
+
+  .contact-section a {
+    color: #FFD700;
+    text-decoration: underline;
+  }
+
+  .section-padding {
+    padding: 60px 0;
+  }
+
+  .parallax1 {
+    background-image: url('assets/img/about-hero.jpg');
+    background-attachment: fixed;
+    background-size: cover;
+    background-position: center;
+    height: 800px;
+    color: #FFD700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    font-size: 2rem;
+    font-weight: 700;
+  }
+
+  .parallax1 h1 {
+    font-family: 'Playfair Display', serif;
+    font-weight: 700;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+    color: #f8f8f8;
+    letter-spacing: 1px;
+    font-size: 6vw;
+    /* Ukuran teks akan menyesuaikan dengan lebar viewport */
+  }
+
+  /* Untuk layar yang lebih kecil seperti ponsel */
+  @media (max-width: 768px) {
+    .parallax1 h1 {
+      font-size: 8vw;
+      /* Membuat teks lebih besar sedikit pada layar kecil */
+      letter-spacing: 0.5px;
+    }
+  }
+
+  /* Untuk layar yang lebih besar seperti desktop */
+  @media (min-width: 1200px) {
+    .parallax1 h1 {
+      font-size: 4vw;
+      /* Membuat teks lebih kecil pada layar yang lebih besar */
+    }
+  }
+
+  .parallax2 {
+    background-image: url('assets/img/about-hero.jpg');
+    background-attachment: fixed;
+    background-size: cover;
+    background-position: center;
+    height: 800px;
+    color: #FFD700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    font-size: 2rem;
+    font-weight: 700;
+  }
+
+  .parallax {
+    background-image: url('assets/img/parallax-background.jpg');
+    background-attachment: fixed;
+    background-size: cover;
+    background-position: center;
+    height: 800px;
+    color: #FFD700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    font-size: 2rem;
+    font-weight: 700;
+
+    .old-standard-tt-regular {
+      font-family: "Old Standard TT", serif;
+      font-weight: 400;
+      font-style: normal;
+    }
+  }
+
+  .parallax h1 {
+    font-family: 'Playfair Display', serif;
+    font-weight: 700;
+    color: #f8f8f8;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+    font-size: 6vw;
+    /* Ukuran teks responsif sesuai dengan lebar viewport */
+    margin-bottom: 20px;
+  }
+
+  .parallax a.btn {
+    font-size: 3vw;
+    /* Ukuran font pada tombol sesuai dengan viewport */
+    padding: 10px 20px;
+    /* Padding fleksibel untuk tombol */
+    color: #fff;
+
+    border: none;
+    border-radius: 5px;
+    text-decoration: none;
+    display: inline-block;
+    transition: background-color 0.3s ease;
+  }
+
+  .parallax a.btn:hover {
+    background-color: #0056b3;
+    /* Warna saat hover */
+  }
+
+  /* Media query untuk layar kecil (ponsel) */
+  @media (max-width: 768px) {
+    .parallax h1 {
+      font-size: 8vw;
+      /* Teks sedikit lebih besar pada layar kecil */
     }
 
-    .header-image {
-      width: 100%;
-      height: 400px;
-      position: relative;
-      overflow: hidden;
+    .parallax a.btn {
+      font-size: 5vw;
+      /* Membuat tombol lebih besar di layar kecil */
+      padding: 12px 24px;
+    }
+  }
+
+  /* Media query untuk layar besar (desktop) */
+  @media (min-width: 1200px) {
+    .parallax h1 {
+      font-size: 4vw;
+      /* Teks lebih kecil pada layar besar */
     }
 
-    .header-image img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      filter: brightness(50%);
-      /* Lebih gelap untuk kontras dengan teks emas */
-    }
-
-    .header-overlay {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.6);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #FFD700;
-      /* Warna emas */
-      text-align: center;
-      font-size: 3rem;
-      font-weight: 700;
-    }
-
-    .navbar {
-      background-color: #000;
-    }
-
-    .navbar-nav .nav-link {
-      color: #FFD700 !important;
-      /* Warna emas */
-    }
-
-    .navbar-nav .nav-link:hover {
-      color: #ffffff !important;
-    }
-
-    .card {
-      border: none;
-      border-radius: 15px;
-      overflow: hidden;
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
-
-    .card:hover {
-      transform: scale(1.05);
-      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-    }
-
-    .card-img-top {
-      height: 250px;
-      object-fit: cover;
-      color: #FFD700;
-    }
-
-    .card-body {
-      background-color: #333333;
-      /* Lebih gelap untuk konsistensi */
-      color: #FFD700;
-      /* Emas */
-      padding: 1.5rem;
-    }
-
-    .btn-primary {
-      background-color: #FFD700;
-      /* Emas */
-      border: none;
-      color: #000;
-      font-weight: bold;
+    .parallax a.btn {
+      font-size: 2vw;
+      /* Tombol lebih kecil di layar besar */
       padding: 10px 20px;
-      border-radius: 50px;
     }
+  }
 
-    .btn-primary:hover {
-      background-color: #f7c600;
-      color: #000;
-    }
+  .hero-image {
+    background: url('assets/img/parallax-background.jpg') no-repeat center center;
+    background-size: cover;
+    height: 400px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
 
-    .order-form {
-      background-color: #1f1f1f;
-      border-radius: 15px;
-      padding: 30px;
-      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-    }
+  .hero-overlay {
+    background: rgba(0, 0, 0, 0.6);
+    /* Lebih gelap untuk kontras */
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+  }
 
-    .order-form h2 {
-      color: #FFD700;
-      font-family: 'Playfair Display', serif;
-    }
+  .hero-overlay h1 {
+    font-size: 3rem;
+    margin-bottom: 10px;
+    color: #FFD700;
+    /* Emas */
+  }
 
-    .contact-section {
-      background-color: #000;
-      color: #FFD700;
-      /* Emas */
-      padding: 40px 20px;
-      border-radius: 15px;
-    }
+  .hero-overlay p {
+    font-size: 1.5rem;
+    color: #FFD700;
+    /* Emas */
+  }
 
-    .contact-section a {
-      color: #FFD700;
-      text-decoration: underline;
-    }
+  .about-section {
+    padding: 60px 20px;
+    background-color: #212121;
+    color: #FFD700;
+    /* Emas */
+  }
 
-    .section-padding {
-      padding: 60px 0;
-    }
+  .about-content {
+    padding: 20px;
+    background-color: #333333;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
 
-    .parallax1 {
-      background-image: url('assets/img/about-hero.jpg');
-      background-attachment: fixed;
-      background-size: cover;
-      background-position: center;
-      height: 800px;
-      color: #FFD700;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      font-size: 2rem;
-      font-weight: 700;
-    }
+  .about-content h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.5rem;
+    margin-bottom: 20px;
+    color: #FFD700;
+    /* Emas */
+  }
 
-    .parallax2 {
-      background-image: url('assets/img/about-hero.jpg');
-      background-attachment: fixed;
-      background-size: cover;
-      background-position: center;
-      height: 800px;
-      color: #FFD700;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      font-size: 2rem;
-      font-weight: 700;
-    }
+  .about-content p {
+    font-size: 1.1rem;
+    line-height: 1.6;
+  }
 
-    .parallax {
-      background-image: url('assets/img/parallax-background.jpg');
-      background-attachment: fixed;
-      background-size: cover;
-      background-position: center;
-      height: 800px;
-      color: #FFD700;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      font-size: 2rem;
-      font-weight: 700;
+  .icon {
+    width: 60px;
+    height: 60px;
+  }
 
-      .old-standard-tt-regular {
-        font-family: "Old Standard TT", serif;
-        font-weight: 400;
-        font-style: normal;
-      }
-    }
+  .about-stats {
+    display: flex;
+    justify-content: space-between;
+    text-align: center;
+    margin-top: 20px;
+  }
 
-    .hero-image {
-      background: url('assets/img/parallax-background.jpg') no-repeat center center;
-      background-size: cover;
-      height: 400px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      position: relative;
-    }
+  .stat {
+    flex: 1;
+    margin: 0 15px;
+    background-color: #3c3c3c;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
 
-    .hero-overlay {
-      background: rgba(0, 0, 0, 0.6);
-      /* Lebih gelap untuk kontras */
-      padding: 20px;
-      border-radius: 10px;
-      text-align: center;
-    }
+  .stat h3 {
+    font-size: 3rem;
+    margin-bottom: 10px;
+    color: #FFD700;
+    /* Emas */
+  }
 
-    .hero-overlay h1 {
-      font-size: 3rem;
-      margin-bottom: 10px;
-      color: #FFD700;
-      /* Emas */
-    }
+  .stat p {
+    font-size: 1.2rem;
+  }
 
-    .hero-overlay p {
-      font-size: 1.5rem;
-      color: #FFD700;
-      /* Emas */
-    }
+  .order-section {
+    background-color: #464646;
+    color: #FFD700;
+    /* Emas */
+    padding: 60px 0;
+  }
 
-    .about-section {
-      padding: 60px 20px;
-      background-color: #212121;
-      color: #FFD700;
-      /* Emas */
-    }
+  .order-card {
+    background-color: #333333;
+    color: #FFD700;
+    /* Emas */
+    border-radius: 15px;
+    padding: 30px;
+    box-shadow: 0 10px 25px rgba(192, 192, 192, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
 
-    .about-content {
-      padding: 20px;
-      background-color: #333333;
-      border-radius: 10px;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    }
+  .order-card:hover {
+    transform: scale(1.02);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+  }
 
-    .about-content h2 {
-      font-family: 'Playfair Display', serif;
-      font-size: 2.5rem;
-      margin-bottom: 20px;
-      color: #FFD700;
-      /* Emas */
-    }
+  .form-label {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #FFD700;
+    /* Emas */
+  }
 
-    .about-content p {
-      font-size: 1.1rem;
-      line-height: 1.6;
-    }
+  .form-control-lg {
+    height: 45px;
+    border-radius: 50px;
+    border: 1px solid #646464;
+    padding: 10px 20px;
+    font-size: 1.1rem;
+  }
 
-    .icon {
-      width: 60px;
-      height: 60px;
-    }
+  .form-check-label {
+    font-size: 1.1rem;
+    margin-left: 10px;
+    color: #FFD700;
+    /* Emas */
+  }
 
-    .about-stats {
-      display: flex;
-      justify-content: space-between;
-      text-align: center;
-      margin-top: 20px;
-    }
+  .footer {
+    background-color: #000;
+    color: #FFD700;
+    /* Emas */
+    padding: 20px 0;
+    text-align: center;
+  }
 
-    .stat {
-      flex: 1;
-      margin: 0 15px;
-      background-color: #3c3c3c;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    }
+  .footer a {
+    color: #FFD700;
+    text-decoration: none;
+  }
 
-    .stat h3 {
-      font-size: 3rem;
-      margin-bottom: 10px;
-      color: #FFD700;
-      /* Emas */
-    }
+  .footer a:hover {
+    text-decoration: underline;
+  }
 
-    .stat p {
-      font-size: 1.2rem;
-    }
+  .about-section {
+    padding: 60px 0;
+  }
 
-    .order-section {
-      background-color: #464646;
-      color: #FFD700;
-      /* Emas */
-      padding: 60px 0;
-    }
+  .about-content {
+    margin-bottom: 30px;
+  }
 
-    .order-card {
-      background-color: #333333;
-      color: #FFD700;
-      /* Emas */
-      border-radius: 15px;
-      padding: 30px;
-      box-shadow: 0 10px 25px rgba(192, 192, 192, 0.1);
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
+  .about-stats {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+  }
 
-    .order-card:hover {
-      transform: scale(1.02);
-      box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
-    }
+  .stat {
+    flex: 1 1 30%;
+    /* Make each stat take up to 30% of the width */
+    min-width: 200px;
+    /* Ensure a minimum width for better responsiveness */
+    text-align: center;
+    margin: 15px;
+  }
 
-    .form-label {
-      font-size: 1.2rem;
-      font-weight: bold;
-      color: #FFD700;
-      /* Emas */
-    }
+  .stat h3 {
+    font-size: 2rem;
+    /* Adjust font size for statistics */
+    color: #FFD700;
+    /* Optional: change color */
+  }
 
-    .form-control-lg {
-      height: 45px;
-      border-radius: 50px;
-      border: 1px solid #646464;
-      padding: 10px 20px;
-      font-size: 1.1rem;
-    }
-
-    .form-check-label {
-      font-size: 1.1rem;
-      margin-left: 10px;
-      color: #FFD700;
-      /* Emas */
-    }
-
-    .footer {
-      background-color: #000;
-      color: #FFD700;
-      /* Emas */
-      padding: 20px 0;
-      text-align: center;
-    }
-
-    .footer a {
-      color: #FFD700;
-      text-decoration: none;
-    }
-
-    .footer a:hover {
-      text-decoration: underline;
-    }
-
-    .about-section {
-      padding: 60px 0;
-    }
-
-    .about-content {
-      margin-bottom: 30px;
-    }
-
-    .about-stats {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: space-around;
-    }
-
-    .stat {
-      flex: 1 1 30%;
-      /* Make each stat take up to 30% of the width */
-      min-width: 200px;
-      /* Ensure a minimum width for better responsiveness */
-      text-align: center;
-      margin: 15px;
-    }
-
-    .stat h3 {
-      font-size: 2rem;
-      /* Adjust font size for statistics */
-      color: #FFD700;
+  .stat p {
+    font-size: 1.2rem;
+    /* Adjust font size for the description */
+    color: #FFD700
       /* Optional: change color */
+  }
+
+  /* Responsive Adjustments */
+  @media (max-width: 768px) {
+    .about-content {
+      margin-bottom: 40px;
     }
 
-    .stat p {
-      font-size: 1.2rem;
-      /* Adjust font size for the description */
-      color: #FFD700
-        /* Optional: change color */
+    .stat {
+      flex: 1 1 100%;
+      /* Stack stats on smaller screens */
     }
+  }
 
-    /* Responsive Adjustments */
-    @media (max-width: 768px) {
-      .about-content {
-        margin-bottom: 40px;
-      }
+  .order-section {
+    background-color: transparent;
+    /* Light background for contrast */
+    padding: 40px 0;
+    /* Add padding to the section */
+  }
 
-      .stat {
-        flex: 1 1 100%;
-        /* Stack stats on smaller screens */
-      }
-    }
+  .card {
+    border-radius: 15px;
+    /* Rounded corners for the card */
+  }
 
+  .card-body {
+    background: transparent;
+    /* Gradient background */
+  }
+
+  .form-label {
+    font-weight: bold;
+    /* Bold labels for better readability */
+    color: #333;
+    /* Dark color for labels */
+  }
+
+  .btn-primary {
+    background-color: #FFD700;
+    /* Gold color for buttons */
+    border: none;
+    /* Remove border */
+  }
+
+  .btn-primary:hover {
+    background-color: #ffc107;
+    /* Darker shade on hover */
+    transition: background-color 0.3s ease;
+    /* Smooth transition */
+  }
+
+  .form-control {
+    border-radius: 10px;
+    /* Rounded corners for input fields */
+  }
+
+  .form-check-input {
+    border-radius: 5px;
+    /* Rounded corners for checkboxes */
+  }
+
+  @media (max-width: 768px) {
     .order-section {
-      background-color: transparent;
-      /* Light background for contrast */
-      padding: 40px 0;
-      /* Add padding to the section */
+      padding: 20px 0;
+      /* Reduce padding on smaller screens */
     }
 
-    .card {
-      border-radius: 15px;
-      /* Rounded corners for the card */
+    .btn-lg {
+      width: 100%;
+      /* Full width buttons on small screens */
+    }
+  }
+
+  /* Tambahkan sedikit custom styling untuk shadow dan gambar */
+  .card {
+    border: none;
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  .card-img-top {
+    height: 200px;
+    object-fit: cover;
+  }
+
+  /* Memberikan padding yang responsif */
+  .card-body {
+    padding: 15px;
+  }
+
+  /* Pada layar yang lebih kecil, sesuaikan padding dan ukuran tombol */
+  @media (max-width: 576px) {
+    .card-body {
+      padding: 10px;
+    }
+
+    .btn {
+      font-size: 14px;
+      padding: 8px 12px;
+    }
+  }
+
+  /* Pada layar yang lebih besar, sesuaikan tombol agar proporsional */
+  @media (min-width: 1200px) {
+    .btn {
+      font-size: 16px;
+      padding: 10px 20px;
+    }
+  }
+
+  .order-section {
+    padding: 30px 0;
+    color: #fff;
+    background-color: rgba(0, 0, 0, 0.6);
+    border-radius: 10px;
+  }
+
+  /* Styling for the card */
+  .card {
+    border-radius: 10px;
+  }
+
+  .card-body {
+    padding: 20px;
+  }
+
+  /* Styling for inputs and buttons */
+  .form-control-lg {
+    font-size: 1.2rem;
+  }
+
+  .btn-lg {
+    font-size: 1.2rem;
+  }
+
+  /* Media query for small screens */
+  @media (max-width: 576px) {
+    .form-control-lg {
+      font-size: 1rem;
+    }
+
+    .btn-lg {
+      font-size: 1rem;
+      padding: 10px 20px;
     }
 
     .card-body {
-      background: transparent;
-      /* Gradient background */
+      padding: 15px;
     }
-
-    .form-label {
-      font-weight: bold;
-      /* Bold labels for better readability */
-      color: #333;
-      /* Dark color for labels */
-    }
-
-    .btn-primary {
-      background-color: #FFD700;
-      /* Gold color for buttons */
-      border: none;
-      /* Remove border */
-    }
-
-    .btn-primary:hover {
-      background-color: #ffc107;
-      /* Darker shade on hover */
-      transition: background-color 0.3s ease;
-      /* Smooth transition */
-    }
-
-    .form-control {
-      border-radius: 10px;
-      /* Rounded corners for input fields */
-    }
-
-    .form-check-input {
-      border-radius: 5px;
-      /* Rounded corners for checkboxes */
-    }
-
-    @media (max-width: 768px) {
-      .order-section {
-        padding: 20px 0;
-        /* Reduce padding on smaller screens */
-      }
-
-      .btn-lg {
-        width: 100%;
-        /* Full width buttons on small screens */
-      }
-    }
-  </style>
+  }
+</style>
 
 </head>
 
@@ -609,14 +773,15 @@ $menuItems = getAllMenuItems($conn); // Make sure to pass $conn
 
         <!-- Loop through each menu item -->
         <?php foreach ($menuItems as $item): ?>
-          <div class="col-md-4 mb-3">
+          <!-- Membuat responsif untuk layar kecil: tampil 1 item, tablet: 2 item, desktop: 3 item -->
+          <div class="col-12 col-sm-6 col-md-4 mb-3">
             <div class="card shadow">
 
               <!-- Image Section -->
               <a href="detail_menu.php?id=<?= htmlspecialchars($item['id_menu']); ?>">
                 <img src="uploads/<?= htmlspecialchars($item['image_url']); ?>"
                   alt="<?= htmlspecialchars($item['menu_item']); ?>"
-                  class="card-img-top" style="max-height: 200px; object-fit: cover;">
+                  class="card-img-top">
               </a>
 
               <div class="card-body shadow">
@@ -629,9 +794,7 @@ $menuItems = getAllMenuItems($conn); // Make sure to pass $conn
                 <a href="detail_menu.php?id=<?= htmlspecialchars($item['id_menu']); ?>" class="btn btn-primary">
                   <i class="fas fa-eye"></i> View Details
                 </a>
-                <a href="edit_menu.php?id=<?= htmlspecialchars($item['id_menu']); ?>" class="btn btn-warning">
-                  <i class="fas fa-edit"></i> Edit Menu
-                </a>
+
               </div>
             </div>
           </div>
@@ -640,6 +803,7 @@ $menuItems = getAllMenuItems($conn); // Make sure to pass $conn
       </div>
     </div>
   </div>
+
 
 
   <div class="parallax2">
@@ -727,11 +891,13 @@ $menuItems = getAllMenuItems($conn); // Make sure to pass $conn
                       </div>
                     </div>
                   </div>
+
                   <div class="text-center">
                     <button type="submit" class="btn btn-primary btn-lg px-5 mt-3">
                       <i class="fas fa-check"></i> Submit Order
                     </button>
                   </div>
+
                 </div>
               </div>
             </div>
@@ -745,14 +911,13 @@ $menuItems = getAllMenuItems($conn); // Make sure to pass $conn
 
 
 
-
   <!-- Contact Section -->
   <div id="contact" class="contact-section mt-5">
     <h2 class="text-center mb-4">Contact Us</h2>
     <p class="text-center">
-    For reservations or inquiries, please email us at
+      For reservations or inquiries, please email us at
       <i class="fas fa-envelope"></i>
-     
+
       <a href="mailto:info@restoranpadang.com">info@restoranpadang.com</a>
     </p>
     <p class="text-center">
