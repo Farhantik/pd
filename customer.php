@@ -48,6 +48,7 @@ $menuItems = getAllMenuItems($conn); // Make sure to pass $conn
   <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
 </head>
 <link rel="stylesheet" href="style.css">
@@ -176,47 +177,82 @@ $menuItems = getAllMenuItems($conn); // Make sure to pass $conn
     padding: 60px 0;
   }
 
+  /* Responsive Video Background */
   .parallax1 {
-    background-image: url('assets/img/about-hero.jpg');
-    background-attachment: fixed;
-    background-size: cover;
-    background-position: center;
+    position: relative;
+    /* Establish a positioning context for absolutely positioned children */
+    overflow: hidden;
+    /* Prevent any overflow of child elements, like the video */
     height: 800px;
-    color: #FFD700;
+    /* Set a specific height for the parallax section */
     display: flex;
+    /* Enable flexbox for centering content */
     align-items: center;
+    /* Center content vertically */
     justify-content: center;
+    /* Center content horizontally */
+    color: #FFD700;
+    /* Set text color */
     text-align: center;
-    font-size: 2rem;
-    font-weight: 700;
+    /* Center text alignment */
   }
 
+
+  .background-clip {
+    position: absolute;
+    /* Position the video absolutely within the container */
+    top: 0;
+    left: 0;
+    width: 100%;
+    /* Default to full width */
+    height: 100%;
+    /* Default to full height */
+    object-fit: cover;
+    /* Cover the entire area */
+    z-index: -1;
+    /* Send video behind content */
+  }
+
+  /* Responsive Text Styles */
   .parallax1 h1 {
     font-family: 'Playfair Display', serif;
-    font-weight: 700;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
     color: #f8f8f8;
-    letter-spacing: 1px;
-    font-size: 6vw;
-    /* Ukuran teks akan menyesuaikan dengan lebar viewport */
+    font-size: 5vw;
+    /* Responsive base font size */
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+    /* Shadow for visibility */
+    text-align: center;
+    /* Center text */
   }
 
-  /* Untuk layar yang lebih kecil seperti ponsel */
+  /* Adjustments for specific screen sizes */
   @media (max-width: 768px) {
+    .parallax1 {
+      font-size: 1.5rem;
+      /* Adjust font size for mobile screens */
+    }
+
     .parallax1 h1 {
-      font-size: 8vw;
-      /* Membuat teks lebih besar sedikit pada layar kecil */
-      letter-spacing: 0.5px;
+      font-size: 7vw;
+      /* Larger text size on small screens */
     }
   }
 
-  /* Untuk layar yang lebih besar seperti desktop */
+  @media (max-width: 480px) {
+    .parallax1 {
+      font-size: 1.2rem;
+      /* Further adjust font size for very small screens */
+    }
+  }
+
   @media (min-width: 1200px) {
     .parallax1 h1 {
       font-size: 4vw;
-      /* Membuat teks lebih kecil pada layar yang lebih besar */
+      /* Smaller text size on large screens */
     }
   }
+
+
 
   .parallax2 {
     background-image: url('assets/img/about-hero.jpg');
@@ -648,6 +684,61 @@ $menuItems = getAllMenuItems($conn); // Make sure to pass $conn
       padding: 15px;
     }
   }
+
+  .audio-icon-wrapper {
+    width: 4rem;
+    height: 4rem;
+    font-size: 4rem;
+    position: fixed;
+    bottom: 2.5rem;
+    right: 2rem;
+    cursor: pointer;
+    color: white;
+    opacity: 0.5;
+    mix-blend-mode: difference;
+    animation: rotating 4s linear infinite;
+    transform-origin: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    line-height: 0;
+  }
+
+
+  .btn {
+    background-color: #FFD700;
+    /* Gold background color */
+    color: #000;
+    /* Black text color */
+    padding: 10px 20px;
+    /* Padding for spacing */
+    border: none;
+    /* Remove default border */
+    border-radius: 5px;
+    /* Rounded corners */
+    font-size: 1.2rem;
+    /* Font size for better readability */
+    text-decoration: none;
+    /* Remove underline */
+    transition: background-color 0.3s ease, transform 0.3s ease;
+    /* Smooth transitions */
+    display: inline-block;
+    /* Inline block for proper padding */
+    margin-top: 20px;
+    /* Add margin for spacing */
+  }
+
+  .btn:hover {
+    background-color: #e6b800;
+    /* Darker gold on hover */
+    transform: translateY(-2px);
+    /* Slight lift effect on hover */
+  }
+
+  .btn:active {
+    transform: translateY(0);
+    /* Reset lift on click */
+  }
 </style>
 
 </head>
@@ -702,13 +793,20 @@ $menuItems = getAllMenuItems($conn); // Make sure to pass $conn
 
   <div class="parallax1">
     <div>
-      <h1>Selamat datang di Restoran Padang Merdeka <br> Perjalanan Kuliner Melalui Cita Rasa Asli Indonesia.</h1>
-
+      <video autoplay loop muted playsinline class="background-clip">
+        <source src="assets/video/parallax1.MP4" type="video/mp4">
+        Your browser does not support the video tag.
+      </video>
+      <h1>Selamat datang di Restoran Padang Merdeka</h1>
+      <div class="simply-countdown"></div>
+      <a href="#parallax" class="btn btn-lg mt-4" onClick="enableScroll()">Lihat</a>
     </div>
   </div>
 
+
+
   <!-- Hero Section -->
-  <div class="parallax">
+  <div id="parallax" class="parallax">
     <div>
       <h1>Discover Authentic Padang Cuisine</h1>
       <a href="#menu" class="btn btn-primary">Explore Our Menu</a>
@@ -951,9 +1049,26 @@ $menuItems = getAllMenuItems($conn); // Make sure to pass $conn
     </div>
   </footer>
 
+  <div id="audio-container">
+    <audio id="song" autoplay loop>
+      <source src="assets/audio/parallax1.mp3" type="audio/mp3">
+    </audio>
+
+    <div class="audio-icon-wrapper" id="audio-icon" style="display: none;">
+      <i class="bi bi-disc"></i>
+    </div>
+  </div>
+
+
+
   <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz"
+    crossorigin="anonymous"></script>
+
+  <script src="https://cdn.jsdelivr.net/npm/bs5-lightbox@1.8.3/dist/index.bundle.min.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', function() {
       const dishContainer = document.getElementById('dishContainer');
@@ -1053,6 +1168,60 @@ $menuItems = getAllMenuItems($conn); // Make sure to pass $conn
 
       document.getElementById('totalPrice').value = totalPrice.toLocaleString(); // Format as currency
     });
+  </script>
+
+  <script>
+    const rootElement = document.documentElement; // Root element
+    const audioIconWrapper = document.querySelector('.audio-icon-wrapper'); // Audio icon wrapper
+    const audioIcon = document.querySelector('.audio-icon-wrapper i'); // Icon inside the wrapper
+    const song = document.getElementById('song'); // Audio element
+    let isPlaying = false; // Track audio state
+    let scrollTop, scrollLeft; // Scroll positions
+
+    // Disable scroll
+    function disableScroll() {
+      scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+      scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
+
+      window.onscroll = function() {
+        window.scrollTo(scrollLeft, scrollTop); // Lock scroll position
+      };
+
+      rootElement.style.scrollBehavior = 'auto'; // Disable smooth scrolling temporarily
+    }
+
+    // Enable scroll
+    function enableScroll() {
+      window.onscroll = null; // Restore scroll behavior
+      rootElement.style.scrollBehavior = 'smooth'; // Re-enable smooth scrolling
+      playAudio(); // Start audio playback
+    }
+
+    // Play audio and show icon
+    function playAudio() {
+      song.volume = 0.1; // Set initial volume
+      audioIconWrapper.style.display = 'flex'; // Show the audio icon
+      song.play(); // Play the audio
+      isPlaying = true;
+    }
+
+    // Icon click event to toggle play/pause
+    audioIconWrapper.onclick = function() {
+      if (isPlaying) {
+        song.pause(); // Pause the audio
+        audioIcon.classList.remove('bi-disc'); // Change icon to pause
+        audioIcon.classList.add('bi-pause-circle');
+      } else {
+        song.play(); // Resume audio playback
+        audioIcon.classList.remove('bi-pause-circle'); // Change icon to play
+        audioIcon.classList.add('bi-disc');
+      }
+
+      isPlaying = !isPlaying; // Toggle play/pause state
+    };
+
+    // Initial call to disable scroll and set up audio control
+    disableScroll();
   </script>
 
 </body>
