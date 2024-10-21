@@ -7,6 +7,7 @@
   <title>Payment</title>
   <link rel="stylesheet" href="style.css">
   <style>
+    /* Same CSS as before */
     body {
       font-family: 'Poppins', sans-serif;
       background: linear-gradient(135deg, #000000, #333333);
@@ -107,6 +108,8 @@
       background-color: #333;
     }
   </style>
+  <!-- Midtrans JavaScript library -->
+  <script type="text/javascript" src="https://app.midtrans.com/snap/snap.js" data-client-key="YOUR_CLIENT_KEY"></script>
 </head>
 
 <body>
@@ -132,8 +135,7 @@
       <input type="text" id="total" name="total" readonly>
 
       <label for="paymentMethod">Payment Method</label>
-      <input type="text" id="paymentMethod" name="paymentMethod"
-        placeholder="Enter Payment Method (e.g., Credit Card, Transfer)" required>
+      <input type="text" id="paymentMethod" name="paymentMethod" placeholder="Enter Payment Method (e.g., Credit Card, Transfer)" required>
 
       <div class="btn-group">
         <button type="submit" class="btn-pay">Confirm Payment</button>
@@ -155,7 +157,11 @@
         const quantity = urlParams.get(`quantity_${dishIndex}`);
         const extras = urlParams.get(`extras_${dishIndex}`);
 
-        dishes.push({ name: dishName, quantity: quantity, extras: extras });
+        dishes.push({
+          name: dishName,
+          quantity: quantity,
+          extras: extras
+        });
       }
     }
 
@@ -174,15 +180,28 @@
 
     document.getElementById('total').value = 'Rp ' + parseInt(totalPrice).toLocaleString();
 
-    document.getElementById('paymentForm').addEventListener('submit', function (e) {
+    document.getElementById('paymentForm').addEventListener('submit', function(e) {
       e.preventDefault();
+
       const paymentMethod = document.getElementById('paymentMethod').value;
-      const paymentConfirmationUrl = `payment-confirmation.html?name=${customerName}&total=${totalPrice}&paymentMethod=${encodeURIComponent(paymentMethod)}`;
-      window.location.href = paymentConfirmationUrl;
+
+      // Midtrans Snap Payment
+      window.snap.pay('TRANSACTION_TOKEN', {
+        onSuccess: function(result) {
+          const paymentConfirmationUrl = `payment-confirmation.html?name=${customerName}&total=${totalPrice}&paymentMethod=${encodeURIComponent(paymentMethod)}&status=success`;
+          window.location.href = paymentConfirmationUrl;
+        },
+        onPending: function(result) {
+          alert("Waiting for your payment!");
+        },
+        onError: function(result) {
+          alert("Payment failed!");
+        }
+      });
     });
 
-    document.getElementById('cancelBtn').addEventListener('click', function () {
-      const orderDetailsUrl = `customer.html?name=${customerName}&total=${totalPrice}`;
+    document.getElementById('cancelBtn').addEventListener('click', function() {
+      const orderDetailsUrl = `customer.php?name=${customerName}&total=${totalPrice}`;
       window.location.href = orderDetailsUrl;
     });
   </script>
