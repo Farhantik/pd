@@ -177,7 +177,7 @@ $menuItem = getMenuItemById($id_menu); // Mengambil data menu berdasarkan id_men
 <body>
   <!-- Navbar -->
   <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
-    <a class="navbar-brand" href="index.php">
+    <a class="navbar-brand" href="indexs.php">
       <i class="fas fa-utensils"></i> Restoran Padang
     </a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
@@ -187,7 +187,7 @@ $menuItem = getMenuItemById($id_menu); // Mengambil data menu berdasarkan id_men
     <div class="collapse navbar-collapse" id="navbarNav">
       <ul class="navbar-nav">
         <li class="nav-item">
-          <a class="nav-link" href="customer.php#menu">
+          <a class="nav-link" href="index.php#menu">
             <i class="fas fa-book-open"></i> Menu
           </a>
         </li>

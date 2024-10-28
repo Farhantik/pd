@@ -1,16 +1,36 @@
 <?php
-require 'functions.php';
+require 'functions.php'; // Ensure this is the correct path to your functions.php
 
+// Check if the registration form has been submitted
 if (isset($_POST['registrasi'])) {
-  if (registrasi($_POST) > 0) {
-    echo "<script>
-                alert('User baru berhasil ditambahkan. Silahkan login!');
-                document.location.href = 'sign-in.php';
-              </script>";
+  // Handle file upload
+  $targetDir = "uploads/"; // Ensure this directory exists and is writable
+  $targetFile = $targetDir . basename($_FILES["profile_picture"]["name"]);
+
+  // Check if the file is an image
+  $check = getimagesize($_FILES["profile_picture"]["tmp_name"]);
+  if ($check !== false) {
+    // Move the uploaded file
+    if (move_uploaded_file($_FILES["profile_picture"]["tmp_name"], $targetFile)) {
+      // Now call the registrasi function
+      $registrationResult = registrasi($_POST['username'], $_POST['password1'], $_POST['email'], $_POST['role'], $targetFile);
+
+      // If the result is greater than 0, registration was successful
+      if ($registrationResult > 0) {
+        echo "<script>
+                        alert('User baru berhasil ditambahkan. Silahkan login!');
+                        document.location.href = 'sign-in.php';
+                      </script>";
+      } else {
+        echo "<script>
+                        alert('User gagal ditambahkan!');
+                      </script>";
+      }
+    } else {
+      echo "Sorry, there was an error uploading your file.";
+    }
   } else {
-    echo "<script>
-                alert('User gagal ditambahkan!');
-              </script>";
+    echo "File is not an image.";
   }
 }
 ?>
@@ -108,29 +128,35 @@ if (isset($_POST['registrasi'])) {
 
 <body>
   <div class="form-signin">
-    <form action="" method="POST">
+    <form action="" method="POST" enctype="multipart/form-data"> <!-- Add enctype for file upload -->
       <div class="logo">
         <img src="assets/img/logo.png" alt="Logo" width="150" height="150">
       </div>
       <h1 class="h3 mb-3 fw-normal">Register</h1>
 
       <div class="form-floating mb-3">
-        <input type="text" class="form-control" id="floatingUsername" name="username" placeholder="Enter your username" required>
+        <input type="text" class="form-control" name="username" placeholder="Enter your username" required>
       </div>
       <div class="form-floating mb-3">
-        <input type="password" class="form-control" id="floatingPassword" name="password1" placeholder="Enter your password" required>
+        <input type="password" class="form-control" name="password1" placeholder="Enter your password" required>
       </div>
       <div class="form-floating mb-3">
-        <input type="password" class="form-control" id="floatingPassword2" name="password2" placeholder="Confirm your password" required>
+        <input type="email" class="form-control" name="email" placeholder="Enter your email" required>
       </div>
       <div class="form-floating mb-3">
-        <select class="form-control" id="floatingRole" name="role" required>
+        <input type="password" class="form-control" name="password2" placeholder="Confirm your password" required>
+      </div>
+      <div class="form-floating mb-3">
+        <select class="form-control" name="role" required>
           <option value="">Select Role</option>
           <option value="admin">Admin</option>
           <option value="admin1">Admin1</option>
-          <option value="admin2">Admin2</option>
           <option value="customer">Customer</option>
+          <!-- Add other roles as necessary -->
         </select>
+      </div>
+      <div class="form-floating mb-3">
+        <input type="file" class="form-control" name="profile_picture" required>
       </div>
 
       <button class="w-100 btn btn-lg btn-login" type="submit" name="registrasi">Register</button>
@@ -142,7 +168,9 @@ if (isset($_POST['registrasi'])) {
     </form>
   </div>
 
-  <script src="../assets/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 
 </html>

@@ -3,15 +3,35 @@ session_start();
 require 'functions.php';
 
 // Check if the user is logged in
-if (!isset($_SESSION['login'])) {
+if (!isset($_SESSION['id'])) {
   header("Location: sign-in.php");
   exit;
 }
+
+$id = $_SESSION['id']; // Get user ID from session
 
 // Establish a connection to the database
 $conn = koneksi();
 
 try {
+  // Fetch user profile information
+  $query = "SELECT username, email, profile_picture FROM users WHERE id = :id"; // Use a prepared statement
+  $stmt = $conn->prepare($query);
+  $stmt->bindParam(':id', $id, PDO::PARAM_INT);
+  $stmt->execute();
+
+  $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+  if ($user) {
+    // Sanitize user profile data
+    $username = htmlspecialchars($user['username']);
+    $email = htmlspecialchars($user['email']);
+    $profile_picture = htmlspecialchars($user['profile_picture']);
+  } else {
+    echo "User not found.";
+    exit;
+  }
+
   // Prepare and execute the query to fetch menu items
   $query = "SELECT * FROM menu WHERE status = '1'";
   $stmt = $conn->prepare($query);
@@ -35,8 +55,6 @@ $currentUserRole = $_SESSION['role'] ?? null; // Get the logged-in user's role
 
 // Continue with the rest of your page logic (e.g., displaying menu items)
 ?>
-
-
 
 
 <!DOCTYPE html>
@@ -264,7 +282,6 @@ $currentUserRole = $_SESSION['role'] ?? null; // Get the logged-in user's role
       <h1 class="text-white">Restoran Padang</h1>
     </div> -->
   </div>
-
   <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <a class="navbar-brand" href="#">
       <img src="assets/img/logo.png" alt="Restoran Padang Logo" class="navbar-logo">
@@ -292,6 +309,18 @@ $currentUserRole = $_SESSION['role'] ?? null; // Get the logged-in user's role
             <i class="fas fa-user"></i> Account
           </a>
           <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+            <!-- Profile Section -->
+            <div class="dropdown-item">
+              <div class="d-flex align-items-center">
+                <img src="<?= htmlspecialchars($profile_picture); ?>" alt="Profile Picture" width="40" height="40" class="rounded-circle mr-2">
+                <div>
+                  <span><strong><?php echo htmlspecialchars($username); ?></strong></span><br>
+                  <small class="text-muted"><?php echo htmlspecialchars($email); ?></small>
+                </div>
+              </div>
+            </div>
+            <div class="dropdown-divider"></div>
+            <!-- Logout -->
             <a class="dropdown-item" href="logout.php">
               <i class="fas fa-sign-out-alt"></i> Logout
             </a>

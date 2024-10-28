@@ -1,14 +1,40 @@
 <?php
 require 'functions.php'; // Include the functions.php file
 
+session_start();
+
+// Check if user_id exists in session
+if (!isset($_SESSION['id'])) {
+  header("Location: sign-in.php"); // Redirect to sign-in page
+  exit;
+}
+
+$id = $_SESSION['id'];
+
+// Koneksi ke PostgreSQL
+$conn = koneksi(); // Assume koneksi() returns a PDO connection
+
+// Query untuk mengambil data pengguna (termasuk email, jika ingin menggunakannya)
+$query = "SELECT username, email, profile_picture FROM users WHERE id = :id"; // Use named parameter
+$result = query($query, ['id' => $id]); // Use the query function from functions.php
+
+if ($result) {
+  $nama = $result['username']; // Changed from 'nama' to 'username'
+  $email = $result['email']; // Mengambil email dari database
+  $profile_picture = $result['profile_picture'];
+} else {
+  echo "User not found.";
+  exit;
+}
+
 // Check if the request method is POST
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
   // Collect and sanitize input
-  $customerName = $_POST['customerName'];
-  $dishSelection = $_POST['dishSelection'];
+  $customerName = htmlspecialchars(trim($_POST['customerName']));
+  $dishSelection = htmlspecialchars(trim($_POST['dishSelection']));
   $quantity = intval($_POST['quantity']); // Convert to integer
   $totalPrice = floatval(str_replace(',', '', $_POST['totalPrice'])); // Ensure total price is a number
-  $dateOfPurchase = $_POST['dateOfPurchase'];
+  $dateOfPurchase = htmlspecialchars(trim($_POST['dateOfPurchase']));
   $extras = isset($_POST['extras']) ? $_POST['extras'] : []; // Capture extras as an array
 
   // Check required fields
@@ -28,15 +54,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
   }
 }
 
-
-$conn = koneksi();
-var_dump($conn); // This should not be null
-
 // Fetching all menu items for the main menu display
-$menuItems = getAllMenuItems($conn); // Make sure to pass $conn
+$menuItems = getAllMenuItems($conn);
 
-
+// Close the PostgreSQL connection after all operations
+$conn = null; // Closing connection if necessary
 ?>
+
 
 
 <html lang="en">
@@ -751,42 +775,57 @@ $menuItems = getAllMenuItems($conn); // Make sure to pass $conn
 </div> -->
   <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
     <a class="navbar-brand d-flex align-items-center" href="#">
-      <img src="assets/img/logo.png" alt="Logo" width="30" height="30" class="d-inline-block align-top mr-2">
+      <img src="assets/img/logo.png" alt="Logo" width="30" height="30" class="mr-2">
       Restoran Padang
     </a>
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
-      aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarNav">
       <ul class="navbar-nav ml-auto">
         <li class="nav-item">
-          <a class="nav-link" href="#about"><i class="fas fa-info-circle mr-1"></i>About</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="#menu"><i class="fas fa-utensils mr-1"></i>Menu</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="#order"><i class="fas fa-shopping-cart mr-1"></i>Order</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="#contact"><i class="fas fa-envelope mr-1"></i>Contact</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="chart.php"><i class="fas fa-chart-bar mr-1"></i>Chart</a>
+          <a class="nav-link" href="#about" aria-label="About Us"><i class="fas fa-info-circle mr-1"></i>About</a>
         </li>
         <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"
-            aria-haspopup="true" aria-expanded="false">
+          <a class="nav-link dropdown-toggle" href="#" id="menuDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" aria-label="Menu">
+            <i class="fas fa-utensils mr-1"></i>Menu
+          </a>
+          <div class="dropdown-menu dropdown-menu-right" aria-labelledby="menuDropdown">
+            <a class="dropdown-item" href="#menu"><i class="fas fa-utensils mr-1"></i>Menu</a>
+            <a class="dropdown-item" href="#order"><i class="fas fa-receipt mr-1"></i>Order</a>
+            <a class="dropdown-item" href="chart.php"><i class="fas fa-shopping-cart mr-1"></i>Cart</a>
+          </div>
+        </li>
+
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" aria-label="Account">
             <i class="fas fa-user mr-1"></i>Account
           </a>
           <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-            <a class="dropdown-item" href="logout.php"><i class="fas fa-sign-out-alt mr-1"></i>Logout</a>
+            <!-- Profile Section -->
+            <div class="dropdown-item">
+              <div class="d-flex align-items-center">
+                <!-- Use dynamic profile picture from the database -->
+                <img src="<?= htmlspecialchars($profile_picture); ?>" alt="Profile Picture" width="40" height="40" class="rounded-circle mr-2">
+                <div>
+                  <span><strong><?php echo htmlspecialchars($nama); ?></strong></span><br>
+                  <small class="text-muted"><?php echo htmlspecialchars($email); ?></small>
+                </div>
+              </div>
+            </div>
+            <div class="dropdown-divider"></div>
+            <!-- Contact and Logout -->
+            <a class="dropdown-item" href="#contact" aria-label="Contact Us"><i class="fas fa-envelope mr-1"></i>Contact</a>
+            <a class="dropdown-item" href="logout.php" aria-label="Logout"><i class="fas fa-sign-out-alt mr-1"></i>Logout</a>
           </div>
         </li>
       </ul>
     </div>
   </nav>
+
+
+
+
 
 
 

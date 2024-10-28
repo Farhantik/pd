@@ -2,19 +2,19 @@
 session_start();
 require 'functions.php';
 
-// Jika pengguna sudah login, arahkan ke halaman customer
+// If the user is already logged in, redirect to the customer page
 if (isset($_SESSION['login'])) {
-  header("Location: customer.php");
+  header("Location: index.php");
   exit;
 }
 
-// Ketika tombol login ditekan
+// When the login button is pressed
 $login_error = '';
 if (isset($_POST['login'])) {
-  $login = login($_POST);
+  $login = login($_POST); // Call the login function
 
   if (isset($login['error']) && $login['error'] == true) {
-    $login_error = $login['pesan']; // Menyimpan pesan error jika login gagal
+    $login_error = $login['pesan']; // Store error message if login fails
   }
 }
 ?>
@@ -116,7 +116,7 @@ if (isset($_POST['login'])) {
 
 <body>
   <div class="form-signin">
-    <form action="" method="POST"> <!-- Mengubah action agar form tetap di halaman yang sama -->
+    <form action="" method="POST"> <!-- Action remains on the same page -->
       <div class="logo">
         <img src="assets/img/logo.png" alt="Logo" width="120" height="120">
       </div>
@@ -124,15 +124,17 @@ if (isset($_POST['login'])) {
 
       <?php if ($login_error) : ?>
         <div class="alert alert-danger" role="alert">
-          <?= $login_error; ?>
+          <?= htmlspecialchars($login_error); ?> <!-- Securely output error message -->
         </div>
       <?php endif; ?>
 
       <div class="form-floating mb-3">
         <input type="text" class="form-control" id="floatingInput" name="username" placeholder="Username" required>
+        <label for="floatingInput">Username</label>
       </div>
       <div class="form-floating mb-3">
         <input type="password" class="form-control" id="floatingPassword" name="password" placeholder="Password" required>
+        <label for="floatingPassword">Password</label>
       </div>
 
       <button class="w-100 btn btn-lg btn-login" type="submit" name="login">Sign In</button>

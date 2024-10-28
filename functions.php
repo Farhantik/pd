@@ -9,7 +9,6 @@ function koneksi()
   $password = 'admin';
 
   try {
-
     $conn = new PDO("pgsql:host=$host;port=$port;dbname=$dbname", $user, $password, [
       PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
       PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
@@ -26,17 +25,14 @@ function query($query, $params = [])
   $stmt = $conn->prepare($query);
 
   if ($params) {
-
     $stmt->execute($params);
   } else {
     $stmt->execute();
   }
 
-
   if ($stmt->rowCount() == 1) {
     return $stmt->fetch();
   }
-
 
   return $stmt->fetchAll();
 }
@@ -48,114 +44,74 @@ function login($data)
   $username = htmlspecialchars($data['username']);
   $password = htmlspecialchars($data['password']);
 
-
-  $query = "SELECT role, password FROM users WHERE username = :username";
+  $query = "SELECT role, password, username, email, profile_picture, id FROM users WHERE username = :username"; // Ensure column names are correct
   $stmt = $conn->prepare($query);
   $stmt->bindParam(':username', $username);
   $stmt->execute();
   $result = $stmt->fetch(PDO::FETCH_ASSOC);
 
-
   if ($result) {
     if (password_verify($password, $result['password'])) {
+      session_start(); // Ensure the session is started
       $_SESSION['login'] = true;
       $_SESSION['role'] = $result['role'];
-
-      // Debugging session after setting the role
-      echo "<pre>";
-      print_r($_SESSION); // Should include 'role'
-      echo "</pre>";
-
-      // Redirect based on role...
-    }
-  }
-
-  // After validating user credentials
-  if ($result) {
-    if (password_verify($password, $result['password'])) {
-      $_SESSION['login'] = true;
-      $_SESSION['role'] = $result['role']; // Make sure this line is present
+      $_SESSION['id'] = $result['id']; // Set the user ID
 
       // Redirect based on role
       if (in_array($result['role'], ['admin', 'admin1', 'admin2'])) {
-        header("Location: index.php");
+        header("Location: indexs.php");
       } elseif ($result['role'] === 'customer') {
-        header("Location: customer.php");
+        header("Location: index.php");
       } else {
         header("Location: error.php");
       }
       exit;
     }
   }
+
+  return [
+    'error' => true,
+    'pesan' => 'Username / Password Salah!'
+  ];
 }
 
-return [
-  'error' => true,
-  'pesan' => 'Username / Password Salah!'
-];
-
-
-
-function registrasi($data)
+function registrasi($username, $password, $email, $role, $profile_picture)
 {
-  $conn = koneksi();
+  $conn = koneksi(); // Get the database connection
 
-  $username = htmlspecialchars(strtolower($data['username']));
-  $password1 = htmlspecialchars($data['password1']);
-  $password2 = htmlspecialchars($data['password2']);
-  $role = htmlspecialchars($data['role']);
+  // Hash the password for security
+  $hashed_password = password_hash($password, PASSWORD_DEFAULT);
 
+  // Prepare the SQL query
+  $query = "INSERT INTO users (username, password, email, role, profile_picture) VALUES (:username, :password, :email, :role, :profile_picture)";
 
-  if (empty($username) || empty($password1) || empty($password2) || empty($role)) {
-    echo "<script>
-            alert('Username, password, dan role tidak boleh kosong!');
-            document.location.href = 'registrasi.php';
-          </script>";
-    return false;
-  }
-
-  $query = "SELECT * FROM users WHERE username = :username";
+  // Prepare the statement
   $stmt = $conn->prepare($query);
+
+  // Bind the parameters
   $stmt->bindParam(':username', $username);
-  $stmt->execute();
-
-  if ($stmt->fetch()) {
-    echo "<script>
-            alert('Username sudah terdaftar!');
-            document.location.href = 'registrasi.php';
-          </script>";
-    return false;
-  }
-
-
-  if ($password1 !== $password2) {
-    echo "<script>
-            alert('Konfirmasi password tidak sesuai!');
-            document.location.href = 'registrasi.php';
-          </script>";
-    return false;
-  }
-
-
-  if (strlen($password1) < 5) {
-    echo "<script>
-            alert('Password terlalu pendek!');
-            document.location.href = 'registrasi.php';
-          </script>";
-    return false;
-  }
-
-
-  $password_baru = password_hash($password1, PASSWORD_DEFAULT);
-  $query = "INSERT INTO users (username, password, role) VALUES (:username, :password, :role)";
-  $stmt = $conn->prepare($query);
-  $stmt->bindParam(':username', $username);
-  $stmt->bindParam(':password', $password_baru);
+  $stmt->bindParam(':password', $hashed_password);
+  $stmt->bindParam(':email', $email);
   $stmt->bindParam(':role', $role);
-  $stmt->execute();
+  $stmt->bindParam(':profile_picture', $profile_picture);
 
-  return $stmt->rowCount();
+  // Execute the statement and check for success
+  if ($stmt->execute()) {
+    return $stmt->rowCount(); // Return the number of affected rows
+  } else {
+    // Log the error for debugging
+    error_log("Registration failed: " . implode(", ", $stmt->errorInfo()));
+    return 0; // Indicate failure
+  }
 }
+
+
+
+
+
+
+
+
 
 function submitOrder($customerName, $dishSelection, $extras, $quantity, $dateOfPurchase)
 {

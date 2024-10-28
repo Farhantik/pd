@@ -75,7 +75,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $conn->commit();
     echo "<script>alert('Menu and history successfully added!');</script>";
     // Redirect to another page after successful submission
-    header("Location: index.php"); // Change this to your desired page
+    header("Location: indexs.php"); // Change this to your desired page
     exit;
   } catch (Exception $e) {
     $conn->rollBack();
@@ -180,7 +180,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       <ul class="navbar-nav ml-auto">
 
         <li class="nav-item">
-          <a class="nav-link" href="index.php">Kembali</a>
+          <a class="nav-link" href="indexs.php">Kembali</a>
         </li>
 
       </ul>

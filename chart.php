@@ -140,7 +140,7 @@ $orders = getOrder(); // This should work if $pdo is set up correctly
     <div class="collapse navbar-collapse" id="navbarNav">
       <ul class="navbar-nav ml-auto">
         <li class="nav-item">
-          <a class="nav-link" href="customer.php">Kembali</a>
+          <a class="nav-link" href="index.php">Kembali</a>
         </li>
       </ul>
     </div>
